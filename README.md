@@ -1,6 +1,6 @@
 Cross-AI-framework
 
-This repository contains a framework for advanced functionalities of using 
+This repository contains a library for advanced functionalities of using 
 Artificial Intelligence for Time-Series analysis.
 
 Developed by:
