@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Tzamalis
+    given-names: Pantelis
+    orcid: https://orcid.org/0000-0002-0238-8243
+  - family-names: Bardoutsos
+    given-names: Andreas
+    orcid:
+title: "Cross-AI Library"
+version: 1.0.0
+doi: https://github.com/tzamalisp/cross-ai-lib
+date-released: 2021-08-01

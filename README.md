@@ -1,4 +1,4 @@
-Cross-AI-framework
+Cross-AI Library
 
 This repository contains a library for advanced functionalities of using 
 Artificial Intelligence for Time-Series analysis.
