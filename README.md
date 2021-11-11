@@ -6,6 +6,7 @@ Artificial Intelligence for Time-Series analysis.
 Contributors:
 * [Pantelis Tzamalis](https://www.linkedin.com/in/pantelis-tzamalis/)
 * [Andreas Bardoutsos](https://www.linkedin.com/in/andreasbardoutsos/)
+* [Dimitris Markantonatos]()
 
 ## Processing
 
@@ -49,10 +50,6 @@ Hou, Jiahui, Xiang-Yang Li, Peide Zhu, Zefan Wang, Yu Wang, Jianwei Qian, and Pa
 In The 25th Annual International Conference on Mobile Computing and Networking, pp. 1-15. 2019.
 ```
 
-
-
-
-
 ## Citing Cross-AI
 
 If you use Cross-AI library in your research, please use the following BibTeX entry:
@@ -60,7 +57,7 @@ If you use Cross-AI library in your research, please use the following BibTeX en
 ```
 @misc{
     CrossAI_Library, 
-    author = {Tzamalis, Pantelis and Bardoutsos, Andreas}, 
+    author = {Tzamalis, Pantelis and Bardoutsos, Andreas and Markantonatos, Dimitris}, 
     doi = {https://github.com/tzamalisp/cross-ai-lib}, 
     month = {8}, 
     title = {{Cross-AI Library}}, 
