@@ -1,4 +1,4 @@
-Cross-AI Library
+CrossAI Library
 
 This repository contains a library for advanced functionalities of using 
 Artificial Intelligence for Time-Series analysis.
@@ -6,9 +6,11 @@ Artificial Intelligence for Time-Series analysis.
 Contributors:
 * [Pantelis Tzamalis](https://www.linkedin.com/in/pantelis-tzamalis/)
 * [Andreas Bardoutsos](https://www.linkedin.com/in/andreasbardoutsos/)
-* [Dimitris Markantonatos]()
+* [Dimitris Markantonatos](https://www.linkedin.com/in/dimitris-markantonatos-4a7b25196/)
 
-## Processing
+## Time Series for Motion Mining
+
+### Processing Motion
 
 Below are the processing functionalities that the library contains:
 
@@ -23,9 +25,9 @@ Below are the processing functionalities that the library contains:
   * Scaling: Normalization, Standardization, Gaussianization
   * Dimensionality Reduction: PCA
 
-## AI Models
+### AI Models
 
-Here are represented the Neural Network models that are implemented for the 1D dimension, 
+Here are presented the Neural Network models that are implemented for the 1D dimension, 
 i.e. for the time-series analysis, including the corresponding citation for each one:
 
 XceptionTime
@@ -50,9 +52,24 @@ Hou, Jiahui, Xiang-Yang Li, Peide Zhu, Zefan Wang, Yu Wang, Jianwei Qian, and Pa
 In The 25th Annual International Conference on Mobile Computing and Networking, pp. 1-15. 2019.
 ```
 
+## Text Mining
+
+Regarding text mining, a series of methods, algorithms and visualization techniques have been
+implemented.
+
+### Processing Text
+
+Processing text:
+
+* 
+
+Features Extraction:
+
+*
+
 ## Citing Cross-AI
 
-If you use Cross-AI library in your research, please use the following BibTeX entry:
+If you use CrossAI library in your research, please use the following BibTeX entry:
 
 ```
 @misc{
