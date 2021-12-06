@@ -1,7 +1,7 @@
 CrossAI Library
 
-This repository contains a library for advanced functionalities of using 
-Artificial Intelligence for Time-Series analysis.
+This repository contains a library of high-level functionalities capable of building 
+Artificial Intelligence processing pipelines for Time-Series and Natural Language Processing.
 
 Contributors:
 * [Pantelis Tzamalis](https://www.linkedin.com/in/pantelis-tzamalis/)
@@ -75,7 +75,7 @@ If you use CrossAI library in your research, please use the following BibTeX ent
 @misc{
     CrossAI_Library, 
     author = {Tzamalis, Pantelis and Bardoutsos, Andreas and Markantonatos, Dimitris}, 
-    doi = {https://github.com/tzamalisp/cross-ai-lib}, 
+    url = {https://github.com/tzamalisp/cross-ai-lib}, 
     month = {8}, 
     title = {{Cross-AI Library}}, 
     year = {2021}
