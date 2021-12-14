@@ -28,6 +28,8 @@ def calc_sensor_magnitude(df, sensor=None):
             df["acc_magnitude"] = calculate_magnitude(df[axes_acc].values)
         elif sensor == "gyr":
             df["gyr_magnitude"] = calculate_magnitude(df[axes_gyr].values)
+
+
 def calculate_magnitude(array, axis=1):
     """
     Calculates the magnitude of a given ndarray.
@@ -80,8 +82,8 @@ def add_signals(config, df):
     kernel = config["filter"].get("kernel")
     if kernel is None:
         kernel = 3
-        msg = "kernel was not found in configuration parameters. The default " \
-              "value (kernel=3) will be used in median filtering"
+        msg = "kernel was not found in configuration parameters. " \
+              "The default value (kernel=3) will be used in median filtering"
         logging.warning(msg)
 
     for axe in axes:
@@ -156,7 +158,8 @@ def add_signals(config, df):
                                          config["filter"]
                                          ["filter_highpass_cutoff"],
                                          config["sampling_frequency"],
-                                         order=config["filter"]["filter_order"],
+                                         order=config["filter"]
+                                         ["filter_order"],
                                          filter_type="lowpass")
             values = df[axes_acc].values - gravity
             if axe in "wgc_acc":
