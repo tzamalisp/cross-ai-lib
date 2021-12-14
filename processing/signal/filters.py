@@ -44,6 +44,3 @@ def butterworth_filter(data, cutoff, fs, order=4, filter_type="low",
                      analog=False, output="sos")
     y = sosfiltfilt(sos, data, axis=0)
     return y
-
-
-
