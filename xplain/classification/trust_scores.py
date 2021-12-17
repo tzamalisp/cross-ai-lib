@@ -1,23 +1,23 @@
 import logging
-import numpy as np
-import pandas as pd
 from pathlib import Path
 from pickle import dump, load
 from alibi.confidence import TrustScore
 from training.scaling import scale_dataset
 from training.scaling import transform_dataset
-from processing.dataset_process import load_dataset_npz
-from utilities.files_handling import search_file_in_dir
+from src.processing.dataset_process import load_dataset_npz
 from training.dimensionality_reduction import Decomposer
 from training.dimensionality_reduction import decompose
-from configuration_functions.project_configuration_variables import project_configuration
+from configuration_functions.project_configuration_variables \
+    import project_configuration
 
 from sklearn.model_selection import train_test_split
 
 
-def prepare_train_data(task, data=None, scaling_method="standard", processing_uuid="untitled"):
+def prepare_train_data(task, data=None, scaling_method="standard",
+                       processing_uuid="untitled"):
     """
-    Prepares the data and transforms it into the correct format for the trust_score model.
+    Prepares the data and transforms it into the correct format for the
+    trust_score model.
     Args:
         task (dict): The classification task dictionary.
         data (numpy.ndarray): An array with the data to be trained.
@@ -29,13 +29,15 @@ def prepare_train_data(task, data=None, scaling_method="standard", processing_uu
     """
 
     if data is None:
-        logging.debug("No train data have been provided. Assuming to use preprocessing dataset's data.")
+        logging.debug("No train data have been provided. Assuming to use "
+                      "preprocessing dataset's data.")
         preprocessing_uuid = task.get("preprocessing_uuid", None)
         if preprocessing_uuid is None:
             msg = "No dataset is available!"
             logging.error(msg)
             raise Exception(msg)
-        logging.debug("Creating decomposer from dataset {}".format(processing_uuid))
+        logging.debug("Creating decomposer from"
+                      " dataset {}".format(processing_uuid))
         logging.debug("Loading dataset {}".format(preprocessing_uuid))
         loaded_data = load_dataset_npz(preprocessing_uuid)
         try:
@@ -45,9 +47,12 @@ def prepare_train_data(task, data=None, scaling_method="standard", processing_uu
             logging.debug(e)
             data = loaded_data["X"]
             data_y = loaded_data["y"]
-            train_data, data_y, train_y, test_y = train_test_split(data, data_y, test_size=0.20,
-                                                                   random_state=42, shuffle=True,
-                                                                   stratify=data_y)
+            train_data, data_y, train_y, test_y = train_test_split(data,
+                                                               data_y,
+                                                               test_size=0.20,
+                                                               random_state=42,
+                                                               shuffle=True,
+                                                               stratify=data_y)
 
     else:
         train_data = data[0]
@@ -73,9 +78,11 @@ def ts_dimensionality_reduction_transformer_load(dimensionality_reduction_method
     """
     This functions returns a transformer according to the input parameters.
     Args:
-        dimensionality_reduction_method (str): The dimensionality reduction method.
+        dimensionality_reduction_method (str): The dimensionality reduction
+         method.
         task (dict): The classification task dictionary.
-        method_params (dict): The dictionary with the dimensionality reduction method's parameters.
+        method_params (dict): The dictionary with the dimensionality reduction
+         method's parameters.
         project_store_path (str, pathlib obj): The project store path.
 
     Returns:
@@ -96,16 +103,20 @@ def ts_dimensionality_reduction_transformer_load(dimensionality_reduction_method
     return transformer
 
 
-def ts_dimensionality_reduction_fit(train_data, dimensionality_reduction_method, task=None, method_params=dict(),
+def ts_dimensionality_reduction_fit(train_data,
+                                    dimensionality_reduction_method,
+                                    task=None, method_params=dict(),
                                     project_store_path=None):
     """
     Used only during training of dimensionality reduction transformers.
     Args:
-        dimensionality_reduction_method (str): The mode of dimensionality reduction. Accepted values are `pca`, `ae`.
+        dimensionality_reduction_method (str): The mode of dimensionality
+         reduction. Accepted values are `pca`, `ae`.
             If `pca`, a PCA transformer will be used. Else, an auto-encoder model will be used for dimensionality
             reduction (currently not implemented).
         task:
-        train_data (tuple): Used if there is no previously created decomposer and a new one must be fit.
+        train_data (tuple): Used if there is no previously created decomposer
+        and a new one must be fit.
         method_params (dict): The method parameters
         project_store_path (str, pathlib obj): The project store path.
 
@@ -113,20 +124,24 @@ def ts_dimensionality_reduction_fit(train_data, dimensionality_reduction_method,
         transformer
         train_data_dr: The training data tuple after dimensionality reduction.
     """
-    logging.debug("Fit of dimensionality reduction method {}".format(dimensionality_reduction_method))
+    logging.debug("Fit of dimensionality reduction met"
+                  "hod {}".format(dimensionality_reduction_method))
     transformer = None
     transformer_params = dict()
     if dimensionality_reduction_method == "pca":
         components = method_params.get("components", 0.95)
-        transformer, train_data_dr = fit_pca_to_task_train_data(train_data, task, components=components,
-                                                                project_store_path=project_store_path)
+        transformer, train_data_dr = fit_pca_to_task_train_data(train_data,
+                                        task,
+                                        components=components,
+                                        project_store_path=project_store_path)
 
     elif dimensionality_reduction_method == "ae":
         msg = "`ae` mode is not implemented yet"
         logging.error(msg)
         raise Exception(msg)
     else:
-        msg = "Invalid dimensionality reduction method `{}`".format(dimensionality_reduction_method)
+        msg = "Invalid dimensionality reduction " \
+              "method `{}`".format(dimensionality_reduction_method)
         logging.error(msg)
         raise Exception(msg)
 
@@ -149,7 +164,8 @@ def load_ts_pca_transformer(decomposer_name,
     if project_store_path is None:
         project_store_path = project_configuration["project_store_path"]
     decomposers_dir = Path(project_store_path).joinpath("decomposers")
-    logging.debug("Attempting to locate decomposer {} in decomposers' directory".format(decomposer_name))
+    logging.debug("Attempting to locate decomposer {} in decomposers'"
+                  " directory".format(decomposer_name))
     try:
         decomposer = Decomposer(decomposers_dir, decomposer_name)
         logging.debug("Decomposer loaded!")
@@ -158,16 +174,19 @@ def load_ts_pca_transformer(decomposer_name,
     return decomposer
 
 
-def fit_pca_to_task_train_data(data, task, components=0.95, project_store_path=None):
+def fit_pca_to_task_train_data(data, task, components=0.95,
+                               project_store_path=None):
     """
     This functions "fits" PCA
     Args:
         data (tuple): Task training data (after scaling) to be used on fit
         task (dict):
-        components (int, float): The dimensions of PCA algorithm to be exported (variance of the dataset).
+        components (int, float): The dimensions of PCA algorithm to be
+         exported (variance of the dataset).
         project_store_path
     Returns:
-        train_data_dr (tuple): train data X after decomposer fit and transform, vector y
+        train_data_dr (tuple): train data X after decomposer fit and transform,
+         vector y
     """
 
     processing_uuid = "untitled"
@@ -176,19 +195,23 @@ def fit_pca_to_task_train_data(data, task, components=0.95, project_store_path=N
     decomposer_name = "{}_{}".format(processing_uuid,
                                      str(components).replace(".", "_"))
     transformed_data, data_y = data[0], data[1]
-    decomposer = load_ts_pca_transformer(decomposer_name, project_store_path=project_store_path)
+    decomposer = load_ts_pca_transformer(decomposer_name,
+                                         project_store_path=project_store_path)
     if decomposer is None:
         logging.debug("Creating decomposer {}".format(decomposer_name))
         # Create and save decomposer
-        _ , _, train_data_dr, _ = decompose(transformed_data, decomposer_name, components=components)
+        _ , _, train_data_dr, _ = decompose(transformed_data, decomposer_name,
+                                            components=components)
         # Load decomposer object
-        decomposer = load_ts_pca_transformer(decomposer_name, project_store_path=project_store_path)
+        decomposer = load_ts_pca_transformer(decomposer_name,
+                                         project_store_path=project_store_path)
     else:
         train_data_dr = decomposer.transform(transformed_data)
     return decomposer, (train_data_dr, data_y)
 
 
-def trust_score_model_fit(train_data_dr, ts_classes, path_to_save=None, **trust_score_params):
+def trust_score_model_fit(train_data_dr, ts_classes, path_to_save=None,
+                          **trust_score_params):
     logging.debug("TrustScore fit.")
     ts = TrustScore(**trust_score_params)
     train_X = train_data_dr[0]
@@ -226,7 +249,8 @@ def trust_scores_model_score(data,
     logging.debug("closest class : {}".format(closest_class))
     try:
         if len(closest_class) != len(score):
-            msg = "Trust score closest_class has returned more elements than score elements. "
+            msg = "Trust score closest_class has returned more elements than " \
+                  "score elements. "
             logging.error(msg)
             raise Exception(msg)
     except Exception as e:
@@ -261,7 +285,8 @@ def calc_trust_scores(data,
     Returns:
 
     """
-    transformer = None  # The transformer that will be used to perform dimensionality reduction on prediction data.
+    transformer = None  # The transformer that will be used to perform
+    # dimensionality reduction on prediction data.
     if task is None:
         processing_uuid = "untitled"
     else:
@@ -269,20 +294,23 @@ def calc_trust_scores(data,
     logging.debug("Calculating TrustScore")
     if project_store_path is None:
         project_store_path = project_configuration["project_store_path"]
-    trust_score_models_path = Path(project_store_path).joinpath("trust_scores_models")
+    trust_score_models_path = Path(project_store_path).joinpath("trust_sco"
+                                                                "res_models")
     model_name = "{}.pkl".format(processing_uuid)
     path_to_model = trust_score_models_path.joinpath(model_name)
     if not trust_score_models_path.is_dir():
         trust_score_models_path.mkdir()
     if not path_to_model.exists():
-        print("Creating a TrustScore model for processing task {}.".format(processing_uuid))
+        print("Creating a TrustScore model for "
+              "processing task {}.".format(processing_uuid))
         logging.debug("Loading train data")
-        train_data = prepare_train_data(task, data=train_data, processing_uuid=processing_uuid)
+        train_data = prepare_train_data(task, data=train_data,
+                                        processing_uuid=processing_uuid)
         transformer, train_data_dr = ts_dimensionality_reduction_fit(train_data,
-                                                                     dimensionality_reduction_method,
-                                                                     task=task,
-                                                                     method_params=method_params,
-                                                                     project_store_path=project_store_path)
+                                         dimensionality_reduction_method,
+                                         task=task,
+                                         method_params=method_params,
+                                         project_store_path=project_store_path)
         ts_model = trust_score_model_fit(train_data_dr, trust_score_classes,
                                          path_to_save=path_to_model,
                                          **trust_score_params_init)
@@ -291,14 +319,14 @@ def calc_trust_scores(data,
         print("Loading a TrustScore model.")
         ts_model = load(open(path_to_model, "rb"))
         transformer = ts_dimensionality_reduction_transformer_load(dimensionality_reduction_method,
-                                                                   task=task,
-                                                                   method_params=method_params,
-                                                                   project_store_path=project_store_path)
+                                       task=task,
+                                       method_params=method_params,
+                                       project_store_path=project_store_path)
 
     score, closest_class = trust_scores_model_score(data,
-                                                    clf_predictions,
-                                                    dimensionality_reduction_method,
-                                                    transformer,
-                                                    ts_model,
-                                                    **trust_score_params_score)
+                                            clf_predictions,
+                                            dimensionality_reduction_method,
+                                            transformer,
+                                            ts_model,
+                                            **trust_score_params_score)
     return score, closest_class
