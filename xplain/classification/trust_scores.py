@@ -8,7 +8,7 @@ from src.processing.dataset_process import load_dataset_npz
 from training.dimensionality_reduction import Decomposer
 from training.dimensionality_reduction import decompose
 from configuration_functions.project_configuration_variables \
-import project_configuration
+    import project_configuration
 
 from sklearn.model_selection import train_test_split
 
@@ -71,7 +71,7 @@ def prepare_train_data(task, data=None, scaling_method="standard",
 
 def ts_dimensionality_reduction_transformer_load(
         dimensionality_reduction_method,task=None, method_params=None,
-        project_store_path=None):
+project_store_path=None):
     """
     This functions returns a transformer according to the input parameters.
     Args:
