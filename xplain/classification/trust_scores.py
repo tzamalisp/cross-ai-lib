@@ -93,8 +93,10 @@ def ts_dimensionality_reduction_transformer_load(
         components = method_params.get("components", 0.95)
         decomposer_name = "{}_{}".format(processing_uuid,
                                          str(components).replace(".", "_"))
-        transformer = load_ts_pca_transformer(decomposer_name,
-                                         project_store_path=project_store_path)
+        transformer = load_ts_pca_transformer(
+            decomposer_name,
+            project_store_path=project_store_path
+        )
     else:
         logging.debug("Method not implemented.")
     return transformer
@@ -128,10 +130,11 @@ def ts_dimensionality_reduction_fit(train_data,
     transformer_params = dict()
     if dimensionality_reduction_method == "pca":
         components = method_params.get("components", 0.95)
-        transformer, train_data_dr = fit_pca_to_task_train_data(train_data,
-                                        task,
-                                        components=components,
-                                        project_store_path=project_store_path)
+        transformer, train_data_dr = fit_pca_to_task_train_data(
+            train_data,
+            task,
+            components=components,
+            project_store_path=project_store_path)
 
     elif dimensionality_reduction_method == "ae":
         msg = "`ae` mode is not implemented yet"
@@ -198,8 +201,8 @@ def fit_pca_to_task_train_data(data, task, components=0.95,
     if decomposer is None:
         logging.debug("Creating decomposer {}".format(decomposer_name))
         # Create and save decomposer
-        _ , _, train_data_dr, _ = decompose(transformed_data, decomposer_name,
-                                            components=components)
+        _, _, train_data_dr, _ = decompose(transformed_data, decomposer_name,
+                                           components=components)
         # Load decomposer object
         decomposer = load_ts_pca_transformer(decomposer_name,
                                          project_store_path=project_store_path)
@@ -318,15 +321,17 @@ def calc_trust_scores(data,
         print("Loading a TrustScore model.")
         ts_model = load(open(path_to_model, "rb"))
         transformer = ts_dimensionality_reduction_transformer_load(
-                                       dimensionality_reduction_method,
-                                       task=task,
-                                       method_params=method_params,
-                                       project_store_path=project_store_path)
-
-    score, closest_class = trust_scores_model_score(data,
-                                            clf_predictions,
-                                            dimensionality_reduction_method,
-                                            transformer,
-                                            ts_model,
-                                            **trust_score_params_score)
+            dimensionality_reduction_method,
+            task=task,
+            method_params=method_params,
+            project_store_path=project_store_path
+        )
+    score, closest_class = trust_scores_model_score(
+        data,
+        clf_predictions,
+        dimensionality_reduction_method,
+        transformer,
+        ts_model,
+        **trust_score_params_score
+    )
     return score, closest_class
