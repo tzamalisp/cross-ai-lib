@@ -204,8 +204,10 @@ def fit_pca_to_task_train_data(data, task, components=0.95,
         _, _, train_data_dr, _ = decompose(transformed_data, decomposer_name,
                                            components=components)
         # Load decomposer object
-        decomposer = load_ts_pca_transformer(decomposer_name,
-                                         project_store_path=project_store_path)
+        decomposer = load_ts_pca_transformer(
+            decomposer_name,
+            project_store_path=project_store_path
+        )
     else:
         train_data_dr = decomposer.transform(transformed_data)
     return decomposer, (train_data_dr, data_y)
