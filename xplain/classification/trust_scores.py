@@ -47,12 +47,9 @@ def prepare_train_data(task, data=None, scaling_method="standard",
             logging.debug(e)
             data = loaded_data["X"]
             data_y = loaded_data["y"]
-            train_data, data_y, train_y, test_y = train_test_split(data,
-                                                               data_y,
-                                                               test_size=0.20,
-                                                               random_state=42,
-                                                               shuffle=True,
-                                                               stratify=data_y)
+            train_data, data_y, train_y, test_y = \
+                train_test_split(data, data_y, test_size=0.20,random_state=42,
+                                 shuffle=True, stratify=data_y)
 
     else:
         train_data = data[0]
@@ -72,9 +69,9 @@ def prepare_train_data(task, data=None, scaling_method="standard",
     return transformed_data, data_y
 
 
-def ts_dimensionality_reduction_transformer_load(dimensionality_reduction_method,
-                                                 task=None, method_params=None,
-                                                 project_store_path=None):
+def ts_dimensionality_reduction_transformer_load(
+        dimensionality_reduction_method,task=None, method_params=None,
+        project_store_path=None):
     """
     This functions returns a transformer according to the input parameters.
     Args:
@@ -97,7 +94,8 @@ def ts_dimensionality_reduction_transformer_load(dimensionality_reduction_method
         decomposer_name = "{}_{}".format(processing_uuid,
                                          str(components).replace(".", "_"))
         transformer = load_ts_pca_transformer(decomposer_name,
-                                              project_store_path=project_store_path)
+                                              project_store_path
+                                              =project_store_path)
     else:
         logging.debug("Method not implemented.")
     return transformer
@@ -112,7 +110,8 @@ def ts_dimensionality_reduction_fit(train_data,
     Args:
         dimensionality_reduction_method (str): The mode of dimensionality
          reduction. Accepted values are `pca`, `ae`.
-            If `pca`, a PCA transformer will be used. Else, an auto-encoder model will be used for dimensionality
+            If `pca`, a PCA transformer will be used. Else, an auto-encoder
+            model will be used for dimensionality
             reduction (currently not implemented).
         task:
         train_data (tuple): Used if there is no previously created decomposer
@@ -249,8 +248,8 @@ def trust_scores_model_score(data,
     logging.debug("closest class : {}".format(closest_class))
     try:
         if len(closest_class) != len(score):
-            msg = "Trust score closest_class has returned more elements than " \
-                  "score elements. "
+            msg = "Trust score closest_class has returned more elements than" \
+                  " score elements. "
             logging.error(msg)
             raise Exception(msg)
     except Exception as e:
@@ -306,7 +305,8 @@ def calc_trust_scores(data,
         logging.debug("Loading train data")
         train_data = prepare_train_data(task, data=train_data,
                                         processing_uuid=processing_uuid)
-        transformer, train_data_dr = ts_dimensionality_reduction_fit(train_data,
+        transformer, train_data_dr = ts_dimensionality_reduction_fit(
+                                         train_data,
                                          dimensionality_reduction_method,
                                          task=task,
                                          method_params=method_params,
@@ -318,7 +318,8 @@ def calc_trust_scores(data,
     else:
         print("Loading a TrustScore model.")
         ts_model = load(open(path_to_model, "rb"))
-        transformer = ts_dimensionality_reduction_transformer_load(dimensionality_reduction_method,
+        transformer = ts_dimensionality_reduction_transformer_load(
+                                       dimensionality_reduction_method,
                                        task=task,
                                        method_params=method_params,
                                        project_store_path=project_store_path)

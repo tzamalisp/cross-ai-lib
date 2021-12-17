@@ -1,5 +1,6 @@
 from src.processing.timeseries.motion.preprocessing import *
-from src.processing.timeseries.signal.features_extraction import signal_features_extraction
+from src.processing.timeseries.signal.features_extraction \
+    import signal_features_extraction
 from utilities.lists_common_utils import find_list_in_list
 import numpy as np
 

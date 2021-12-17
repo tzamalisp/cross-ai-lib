@@ -19,7 +19,8 @@ import matplotlib.pyplot as plt
 from matplotlib.mlab import window_none
 from utilities.visualizations import save_fig
 from predictions.timeseries_predictions_visualizations import LABELS_COLORS
-from src.processing.timeseries.motion.project_processing_motion_variables import axes_acc, axes_gyro, spectrogram_default_params
+from src.processing.timeseries.motion.project_processing_motion_variables \
+    import axes_acc, axes_gyro, spectrogram_default_params
 # TODO change location of functions it does not only correspond to motion.
 
 

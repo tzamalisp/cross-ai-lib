@@ -12,8 +12,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import shuffle
 from tqdm import tqdm
-from configuration_functions.project_configuration_variables import project_configuration
-from src.processing.timeseries.motion.features_extraction import motion_features_extraction
+from configuration_functions.project_configuration_variables \
+    import project_configuration
+from src.processing.timeseries.motion.features_extraction \
+    import motion_features_extraction
 from training.scaling import scale_dataset, transform_dataset
 import logging
 from training.dimensionality_reduction import decompose

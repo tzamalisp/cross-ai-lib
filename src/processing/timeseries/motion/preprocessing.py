@@ -3,15 +3,17 @@ import logging
 import numpy as np
 import pandas as pd
 
-from src.processing.timeseries.motion.project_processing_motion_variables import axes_acc, axes_gyro, accepted_keys_to_generic
+from src.processing.timeseries.motion.project_processing_motion_variables\
+    import axes_acc, axes_gyro, accepted_keys_to_generic
 
 
 def get_motion_signals_data_from_document(dataset_document):
 
     """
-    Accepts a mongodb document and returns a dataframe. The length of data is provided
-    by `datalen` field which is expected to be calculated in mongo project querie. It converts the keys of the
-    dictionary to generally accepted motion sensor key names.
+    Accepts a mongodb document and returns a dataframe. The length of data is
+    provided by `datalen` field which is expected to be calculated in mongo
+    project querie. It converts the keys of the dictionary to generally
+    accepted motion sensor key names.
     Args:
         dataset_document: dictionary document from mongodb
 
@@ -30,10 +32,12 @@ def get_motion_signals_data_from_document(dataset_document):
         datalen = np.min(datalengths)
     df_dict = dict()
     for key in dataset_dict.keys():
-        if key in list(accepted_keys_to_generic.keys()) or key in axes_acc+axes_gyro:
+        if key in list(accepted_keys_to_generic.keys()) or key in\
+                axes_acc+axes_gyro:
             # this way all document keys would be converted to generic keys
             if len(dataset_dict[key]) > datalen:
-                # logging.warning("Disagreement on DataFrame axes length. Rejecting values to obtain the accepted len.")
+                # logging.warning("Disagreement on DataFrame axes length.
+                # Rejecting values to obtain the accepted len.")
                 dataset_dict[key] = dataset_dict[key][:datalen]
             if key not in axes_acc+axes_gyro:
                 df_dict[accepted_keys_to_generic[key]] = dataset_dict[key]
@@ -45,12 +49,14 @@ def get_motion_signals_data_from_document(dataset_document):
 
 def recreate_signal_column_names(axes):
     """
-    Given a list of signal names regarding motion (accelerometer and/or gyroscope) the signal names
-    are recreated by replacing the acc name in axes name with each of the accelerometer signals (x, y, z).
-    E.g. if axes contains the axes category `filter_acc`, then the new list will contain `filter_acc_x`,
-    `filter_acc_y`, `filter_acc_z`.
+    Given a list of signal names regarding motion (accelerometer and/or
+    gyroscope) the signal names are recreated by replacing the acc name in axes
+    name with each of the accelerometer signals (x, y, z).E.g. if axes contains
+    the axes category `filter_acc`, then the new list will contain
+    `filter_acc_x`, `filter_acc_y`, `filter_acc_z`.
     Args:
-        axes (list): Contains strings that should contain either `acc` or `gyr` substrings.
+        axes (list): Contains strings that should contain either `acc` or
+        `gyr` substrings.
 
     Returns:
         A list with all the signals that occur from the categories.
@@ -69,8 +75,8 @@ def recreate_signal_column_names(axes):
 
 def recreate_dataframe_and_append_signals(instance, axes, axes_signals):
     """
-    Function to recreate a dataframe from an instance of the dataset and further add the magnitude signal and the
-    sum signal.
+    Function to recreate a dataframe from an instance of the dataset and
+    further add the magnitude signal and the sum signal.
     """
     df = pd.DataFrame(instance, columns=axes_signals)
     accumulated_signals = list()
@@ -86,9 +92,12 @@ def recreate_dataframe_and_append_signals(instance, axes, axes_signals):
             accumulated_signals.append(signals_cat)
     for signals, signals_category in zip(accumulated_signals, axes):
         col_name = signals_category+"_magnitude"
-        df[col_name] = np.apply_along_axis(lambda x: np.sqrt(np.power(x, 2).sum()), 1, df[signals].values)
+        df[col_name] = np.apply_along_axis(lambda x:
+                                           np.sqrt(np.power(x, 2).sum()), 1,
+                                           df[signals].values)
         col_name = signals_category+"_sum"
-        df[col_name] = np.apply_along_axis(lambda x: np.sum(x), 1, df[signals].values)
+        df[col_name] = np.apply_along_axis(lambda x: np.sum(x),
+                                           1, df[signals].values)
     return df
 
 
@@ -102,7 +111,8 @@ def calculate_magnitude(array, axis=1):
     Returns:
         (numpy.ndarray) the magnitude of the values of the input array
     """
-    return np.apply_along_axis(lambda x: np.sqrt(np.power(x, 2).sum()), axis, array)
+    return np.apply_along_axis(lambda x: np.sqrt(np.power(x, 2).sum()),
+                               axis, array)
 
 
 def calculate_sma(array, axis=1):
@@ -120,14 +130,15 @@ def calculate_sma(array, axis=1):
 
 def calculate_signal_duration(samples, sampling_frequency):
     """
-    Calculates the duration of a signal. Main hypothesis is that sampling is uniform in time.
+    Calculates the duration of a signal. Main hypothesis is that sampling is
+    uniform in time.
     Args:
         samples (int): Number of values of signal.
         sampling_frequency (float): The frequency of the sampled signal.
 
     Returns:
-        duration (float): duration of signal (by default in seconds if frequency is expressed
-            in cycles per second).
+        duration (float): duration of signal (by default in seconds if
+        frequency is expressed in cycles per second).
     """
     return samples / sampling_frequency
 
@@ -142,8 +153,8 @@ def add_preprocessing_axes(df):
 
 def append_instances(dfs_list):
     """
-    Creates a new dataframe with the acc and gyroscope axes of all the instances
-    in the list.
+    Creates a new dataframe with the acc and gyroscope axes of all the
+    instances in the list.
     Args:
         dfs_list (list): List of DataFrames.
 

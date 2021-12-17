@@ -1,9 +1,8 @@
 import logging
 import pandas as pd
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv1D, ConvLSTM2D, Dense, Dropout, Flatten, \
-    LSTM, \
-    MaxPooling1D, TimeDistributed
+from tensorflow.keras.layers import Conv1D, ConvLSTM2D, Dense, Dropout, \
+     Flatten,LSTM, MaxPooling1D, TimeDistributed
 from src.models.nn.base_model import BaseModel
 
 

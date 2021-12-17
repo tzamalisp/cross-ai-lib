@@ -14,7 +14,8 @@ import pandas as pd
 from scipy.interpolate import CubicSpline  # for warping
 from transforms3d.axangles import axangle2mat  # for rotation
 from utilities.lists_common_utils import match_list_in_list
-from src.processing.timeseries.motion.project_processing_motion_variables import axes_acc, axes_gyro
+from src.processing.timeseries.motion.project_processing_motion_variables\
+    import axes_acc, axes_gyro
 from tsaug import AddNoise
 
 
