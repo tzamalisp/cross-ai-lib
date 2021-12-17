@@ -8,7 +8,7 @@ from src.processing.dataset_process import load_dataset_npz
 from training.dimensionality_reduction import Decomposer
 from training.dimensionality_reduction import decompose
 from configuration_functions.project_configuration_variables \
-    import project_configuration
+import project_configuration
 
 from sklearn.model_selection import train_test_split
 
