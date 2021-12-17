@@ -48,7 +48,7 @@ def prepare_train_data(task, data=None, scaling_method="standard",
             data = loaded_data["X"]
             data_y = loaded_data["y"]
             train_data, data_y, train_y, test_y = \
-                train_test_split(data, data_y, test_size=0.20,random_state=42,
+                train_test_split(data, data_y, test_size=0.20, random_state=42,
                                  shuffle=True, stratify=data_y)
 
     else:
@@ -70,8 +70,8 @@ def prepare_train_data(task, data=None, scaling_method="standard",
 
 
 def ts_dimensionality_reduction_transformer_load(
-        dimensionality_reduction_method,task=None, method_params=None,
-project_store_path=None):
+        dimensionality_reduction_method, task=None, method_params=None,
+        project_store_path=None):
     """
     This functions returns a transformer according to the input parameters.
     Args:
@@ -94,8 +94,7 @@ project_store_path=None):
         decomposer_name = "{}_{}".format(processing_uuid,
                                          str(components).replace(".", "_"))
         transformer = load_ts_pca_transformer(decomposer_name,
-                                              project_store_path
-                                              =project_store_path)
+                                         project_store_path=project_store_path)
     else:
         logging.debug("Method not implemented.")
     return transformer
