@@ -39,9 +39,10 @@ def number_of_instances_barplot(instances_counts, title=None, ax=None, xlabel=No
     Creates a barplot with the items of the `instances_counts` dictionary.
 
     Args:
-        y_label: (str, optional) The y_axis label
-        x_label: (str, optional) The x_axis label
-        instances_counts (dict): Dict in the format {<label_name>: <integer>}
+        instances_counts (dict): Dict in the format {<label_name>: <integer>}.
+        title (str): The title of the figure.
+        ylabel: (str, optional) The y_axis label.
+        xlabel: (str, optional) The x_axis label.
         title (str, optional): When defined, a title is added to the exported plot. Default None.
         ax (matplotlib.axe, optional): When defined, the plot is created in the given axe. Default None.
         path_to_save (pathlib.Path or str, optional): When defined, the plot is saved on the given path instead of
@@ -287,7 +288,7 @@ def save_fig(fig_id, fig_extension="png", resolution=500):
 
 def load_fig(path_to_figure, figsize=(15, 15), display=True):
     """
-
+    Loads a figure from a certain path.
     Args:
         figsize: figure size in tuple
         path_to_figure (str or pathlib.Path):
@@ -305,7 +306,8 @@ def load_fig(path_to_figure, figsize=(15, 15), display=True):
 
 def fig2data(fig):
     """
-    @brief Convert a Matplotlib figure to a 3D numpy array with RGB channels and return it
+    @brief Convert a Matplotlib figure to a 3D numpy array with RGB channels
+    and return it
     @param fig a matplotlib figure
     @return a numpy 3D array of RGBA values
     """
@@ -354,9 +356,18 @@ def fig2img(fig, fig_export):
 
 
 def merge_pil_images(pil_images_sprectograms_list):
+    """
+
+    Args:
+        pil_images_sprectograms_list:
+
+    Returns:
+
+    """
     imgs = [i for i in pil_images_sprectograms_list]
 
-    # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)
+    # pick the image which is the smallest, and resize the others to match it
+    # (can be arbitrary image shape here)
     min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
 
     # imgs_comb = list()
@@ -373,19 +384,25 @@ def merge_pil_images(pil_images_sprectograms_list):
     return imgs_comb
 
 
-def boxplot_statistical_data(data, title=None, ax=None, path_to_save=None, **kwargs):
+def boxplot_statistical_data(data, title=None, ax=None, path_to_save=None,
+                             **kwargs):
     """
-
+    This function creates a figure with boxplots of the data of the input.
     Args:
-        path_to_save:
+        path_to_save (str): The path to save the exported figures.
         ax:
         data(DataFrame or numpy.array): Array or dataframe to plot.
-        title (str, optional): When defined, a title is added to the exported plot. Default None.
-            ax (matplotlib.axe, optional): When defined, the plot is created in the given axe. Default None.
-            path_to_save (pathlib.Path or str, optional): When defined, the plot is saved on the given path instead
-                            of being depicted through `plt.show()`. Default None.
+        title (str, optional): When defined, a title is added to the exported
+                               plot. Default None.
+            ax (matplotlib.axe, optional): When defined, the plot is created in
+                                           the given axe. Default None.
+            path_to_save (pathlib.Path or str, optional): When defined,the plot
+                            is saved on the given path instead
+                            of being depicted through `plt.show()`.
+                            Default None.
         *args (list): Access positional arguments
-        **kwargs (list): Access categorical arguments. Can be used to specify various parameters for the
+        **kwargs (list): Access categorical arguments. Can be used to specify
+            various parameters for the
             plots such as figsize.
 
     Returns:
@@ -412,6 +429,18 @@ def boxplot_statistical_data(data, title=None, ax=None, path_to_save=None, **kwa
 
 
 def plot_null_values(df, title=None, path_to_save=None):
+    """
+    Plots a heatmap of the null values found in a features dataframe.
+    Args:
+        df (pd.DataFrame): The dataframe that you want to plot the null
+        values of.
+        title (str): The title of the figure/
+        path_to_save (str or Path-like object): The path to save the exported
+        figure.
+
+    Returns:
+        None
+    """
     plt.figure(figsize=(16, 5))
     plt.title(title)
     sns.heatmap(df.isnull(), yticklabels=False, cbar=False, cmap="viridis")
@@ -422,7 +451,24 @@ def plot_null_values(df, title=None, path_to_save=None):
         plt.show()
 
 
-def plot_scatter(data_list, xlabel, ylabel, zlabel=None, title=None, path_to_save=None, **kwargs):
+def plot_scatter(data_list, xlabel, ylabel, zlabel=None, title=None,
+                 path_to_save=None, **kwargs):
+    """
+    It plots a 2D or a 3D scatter plot depending on the shape of the arrays
+    containe in the list.
+    Args:
+        data_list (list): List of numpy arrays to produce the figure from.
+        xlabel (str): The label of the x-axis.
+        ylabel (str): The label of the y-axis.
+        zlabel (str optional): The label of the z-axis.
+        title (str): The title of the exported figure.
+        path_to_save (str of Path-like object): The path for the figure to be
+        stored on.
+        **kwargs:
+
+    Returns:
+        None.
+    """
     # TODO add documentation
     # TODO add check that list contains only two arrays of data
     figsize = kwargs.get("figsize", (14, 9))
@@ -437,7 +483,8 @@ def plot_scatter(data_list, xlabel, ylabel, zlabel=None, title=None, path_to_sav
         ax = fig.add_subplot(111, projection="3d")
         ax.scatter(data_list[0], data_list[1], data_list[2], c=c, cmap=cmap)
     else:
-        msg = "Invalid data dimensions provided to create scatterplot. Data arrays found : {}".format(len(data_list))
+        msg = "Invalid data dimensions provided to create scatterplot." \
+              " Data arrays found : {}".format(len(data_list))
         logging.error(msg)
         raise Exception(msg)
     ax.set_xlabel(xlabel)
@@ -446,7 +493,8 @@ def plot_scatter(data_list, xlabel, ylabel, zlabel=None, title=None, path_to_sav
         if zlabel is not None:
             ax.set_zlabel(zlabel)
         else:
-            logging.warning("3-Dimensional data provided, but no description for zlabel.")
+            logging.warning("3-Dimensional data provided, but no "
+                            "description for zlabel.")
     if title is not None:
         plt.title(title)
     if path_to_save is not None:
@@ -457,6 +505,19 @@ def plot_scatter(data_list, xlabel, ylabel, zlabel=None, title=None, path_to_sav
 
 
 def plot_dataframe_heatmap(data, title=None, path_to_save=None, **kwargs):
+    """
+    Plots a heatmap of the input dataframe.
+    Args:
+        data (pd.DataFrame): The input dataframe that provides the data to the
+        figure.
+        title (str): The title of the exported figure.
+        path_to_save (str or Path-like object): The path that the figure will
+        be stored on.
+        **kwargs:
+
+    Returns:
+        None.
+    """
     figsize = kwargs.get("figsize", (24, 10))
     cmap = kwargs.get("cmap", "plasma")
     plt.figure(figsize=figsize)
@@ -471,17 +532,31 @@ def plot_dataframe_heatmap(data, title=None, path_to_save=None, **kwargs):
 
 
 def plot_all_ml_model_scores(path_to_csv):
+    """
+    Plots all the models scores of a specific project in a barplot by searching
+    for the relative csv (all_models_score.csv)
+    The csv must have two columns only with one being the name of the
+    classifier and the other the accuracy_score.
+    Args:
+        path_to_csv (str or Path-like object): The absolute path to the
+        all_models_scores.csv.
+
+    Returns:
+        None
+    """
     logging.info("Plotting all ml models' accuracy scores..")
     if path_to_csv.is_file():
         plt.rcParams["axes.labelsize"] = "x-large"
         plt.rcParams["xtick.labelsize"] = "medium"
         plt.rcParams["ytick.labelsize"] = "medium"
         scores_df = load_csv_data(
-            "{}".format(Path(project_configuration["project_store_path"]).joinpath("reports/all_scores.csv")))
-        scores_df.plot(x='model', y='score', kind='bar', figsize=(20, 12), color='#1f77b4',
-                       edgecolor=(0, 0, 0), linewidth="1.0")
+            "{}".format(Path(project_configuration["project_store_path"]).
+                        joinpath("reports/all_scores.csv")))
+        scores_df.plot(x='model', y='score', kind='bar', figsize=(20, 12),
+                       color='#1f77b4', edgecolor=(0, 0, 0), linewidth="1.0")
         plt.xticks(rotation=25)
-        plt.savefig(Path(project_configuration["project_store_path"]).joinpath("reports/all_model_scores"))
+        plt.savefig(Path(project_configuration["project_store_path"]).
+                    joinpath("reports/all_model_scores"))
     else:
         logging.error("The csv file does not exist!")
 
@@ -492,7 +567,8 @@ def plot_dataframe(df_plot, signals, num, title=None):
     for interactively plotting the available signals.
     Args:
         df_plot (pandas DataFrame):
-        signals (list): List of strings. Strings should be columns of the dataframe
+        signals (list): List of strings. Strings should be columns of the
+        dataframe.
         num (int or str): The identifier of the fgure that is created.
 
     Returns:
