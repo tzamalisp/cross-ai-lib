@@ -24,6 +24,9 @@ from utilities.visualizations import plot_scatter, plot_dataframe_heatmap
 
 
 class Dataset:
+    """
+
+    """
     def __init__(self):
         self.path_to_dataset_directory = Path(project_configuration["project_directories"]["dataset"])
         self.X = None
@@ -56,7 +59,7 @@ class Dataset:
 
     def load_dataset_in_path(self, path_to_npz):
         """
-
+        Load a dataset from a path. 
         Args:
             path_to_npz: Path to an npz file containing a dataset with X,y in saved arrays
 
@@ -239,6 +242,21 @@ def dataset_postprocessing(train_X, test_X, configuration):
 
 
 def dataset_split(dataset_X, dataset_y, train_size=None):
+    """
+    Splits a dataset in train and test sets according to the configuration
+    paramaters.
+    Args:
+        dataset_X (np.ndarray): The dataset features' values.
+        dataset_y (np.ndarray): The dataset labels.
+        train_size (float): The percentage of the split.
+
+    Returns:
+        train_X (np.ndarray): The train dataset features' values.
+        test_X (np.ndarray): The test dataset features' values.
+        train_y (np.ndarray): The train dataset labels.
+        test_y (np.ndarray): The test dataset labels.
+
+    """
     if train_size is None:
         train_size = project_configuration["processing"].get("train_size")
     shuffle_dataset = project_configuration["processing"].get("shuffle") if \

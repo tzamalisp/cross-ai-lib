@@ -1,8 +1,6 @@
 """
-Functions for vizualizing and saving figures, using matplotlib and seaborn.
+Functions for visualizing and saving figures, using matplotlib and seaborn.
 """
-# TODO discuss a proper way of using savefig and finalize the savefig arguments.
-
 import logging
 import re
 
@@ -214,7 +212,7 @@ def plot_distribution_of_data(instances_dict, description=None, title=None, xlab
     should be in a dictionary format.
     Args:
         instances_dict (dict): Dict in the format {<label_name>: <list of values>}
-        description: If defined, it would be used as a description in the xlabel of the histogram.
+        description (str): If defined, it would be used as a description in the xlabel of the histogram.
         title (str, optional): The figure title
         bins (int, optional): bins to use for the histogram. Defaults to 10.
         path_to_save (pathlib.Path or str, optional): When defined, the plot is saved on the given path instead of
@@ -258,6 +256,14 @@ def plot_distribution_of_data(instances_dict, description=None, title=None, xlab
 
 
 def display_and_save_fig(path_to_save):
+    """
+    First displays a plt figure and then saves it to a path.
+    Args:
+        path_to_save (str): The path that the figure will be saved to.
+
+    Returns:
+        None.
+    """
     if path_to_save:
         save_fig(path_to_save)
     plt.show()
@@ -306,10 +312,12 @@ def load_fig(path_to_figure, figsize=(15, 15), display=True):
 
 def fig2data(fig):
     """
-    @brief Convert a Matplotlib figure to a 3D numpy array with RGB channels
-    and return it
-    @param fig a matplotlib figure
-    @return a numpy 3D array of RGBA values
+    Converts a Matplotlib figure to a 3D numpy array with RGB channels
+    and returns it
+    Args:
+        fig (matplotlib.Figure): A matplotlib figure.
+    Returns :
+        buf (np.array): A numpy 3D array of RGBA values
     """
     #     print("MAKING IMAGE AND BUFFER DATA")
     # draw the renderer
@@ -572,7 +580,7 @@ def plot_dataframe(df_plot, signals, num, title=None):
         num (int or str): The identifier of the fgure that is created.
 
     Returns:
-
+        None
     """
     plt.figure(num=num)
     plt.clf()

@@ -121,7 +121,7 @@ def ts_dimensionality_reduction_fit(train_data,
         project_store_path (str, pathlib obj): The project store path.
 
     Returns:
-        transformer
+        transformer: A transformer object.
         train_data_dr: The training data tuple after dimensionality reduction.
     """
     logging.debug("Fit of dimensionality reduction met"
@@ -156,7 +156,6 @@ def load_ts_pca_transformer(decomposer_name,
     Args:
         decomposer_name (str): The name of the decomposer.
         project_store_path (str, pathlib obj): The project store path.
-        task (dict): The dictionary with PCA parameters.
 
     Returns:
         decomposer (training.dimensionality_reduction.Decomposer)
@@ -215,12 +214,24 @@ def fit_pca_to_task_train_data(data, task, components=0.95,
 
 def trust_score_model_fit(train_data_dr, ts_classes, path_to_save=None,
                           **trust_score_params):
+    """
+    Fits a trust score model on the train data.
+    Args:
+        train_data_dr (tuple): train data X after decomposer fit and transform
+        ts_classes (list): The list of the classes.
+        path_to_save (str): The path to save the trust_score model after fit.
+        **trust_score_params (dict): Parameters of the Trust Score Model.
+
+    Returns:
+        ts (trust_score model object):
+    """
     logging.debug("TrustScore fit.")
     ts = TrustScore(**trust_score_params)
     train_X = train_data_dr[0]
     train_y = train_data_dr[1]
     ts.fit(train_X, train_y, classes=ts_classes)
-    dump(ts, open(path_to_save, "wb"))
+    if path_to_save():
+        dump(ts, open(path_to_save, "wb"))
     return ts
 
 
@@ -230,6 +241,19 @@ def trust_scores_model_score(data,
                              transformer,
                              ts_model,
                              **params_score):
+    """
+    Computes and the trust_scores and the closest classes of predictions.
+    Args:
+        data:
+        clf_predictions:
+        dimensionality_reduction_method:
+        transformer:
+        ts_model:
+        **params_score:
+
+    Returns:
+
+    """
     logging.debug("Dimensionality reduction on predicted data.")
     if dimensionality_reduction_method == "pca":
         data_dr = transformer.transform(data)
