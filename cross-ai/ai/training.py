@@ -79,14 +79,12 @@ def train_keras_clf(config, train_data, labels, model_name="xception_time",
     if mode == "randomized":
         clf_model = RandomizedSearchCV(estimator=model,
                                        param_distributions=param_grid,
-       # n_jobs=config["fit_grid_params"]["n_jobs"],  # not working for GPUs
                                        cv=config["fit_grid_params"]["cv"],
-                                       verbose=
-                                       config["fit_grid_params"]["verbose"])
+                                       verbose=config["fit_grid_params"]
+                                       ["verbose"])
     elif mode == "gridsearch":
         clf_model = GridSearchCV(estimator=model,
                                  param_grid=param_grid,
-         # n_jobs=config["fit_grid_params"]["n_jobs"],  # not working for GPUs
                                  cv=config["fit_grid_params"]["cv"],
                                  verbose=config["fit_grid_params"]["verbose"])
     else:
@@ -172,7 +170,7 @@ def load_tf_clf(clf_params, grid_params, model_selection="xception_time"):
             lr_rate=grid_params["lr_rate"],
             adam_epsilon=grid_params["adam_epsilon"],
             activation=clf_params["activation"]
-                              )
+        )
 
     elif model_selection == "inception_time":
         model = inception_time(
@@ -188,7 +186,7 @@ def load_tf_clf(clf_params, grid_params, model_selection="xception_time"):
             lr_rate=grid_params["lr_rate"],
             adam_epsilon=grid_params["adam_epsilon"],
             activation=clf_params["activation"]
-                               )
+        )
 
     elif model_selection == "bi_lstm":
         model = bi_lstm(number_of_classes=clf_params["number_of_classes"],

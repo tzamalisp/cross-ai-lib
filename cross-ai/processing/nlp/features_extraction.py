@@ -16,6 +16,7 @@ from nltk.tokenize import TweetTokenizer, word_tokenize
 # sentiment analysis
 import spacy
 from spacytextblob.spacytextblob import SpacyTextBlob
+
 nlp = spacy.load('el_core_news_sm')  # load the greek corpus
 spacy_text_blob = SpacyTextBlob()
 nlp.add_pipe(spacy_text_blob)
@@ -40,11 +41,11 @@ def emojis_sentiments_sum(emojis_list):
         for emoji in emojis_list:
             try:
                 neg = get_emoji_sentiment_rank(emoji)["negative"] / \
-                      get_emoji_sentiment_rank(emoji)["occurrences"]
+                    get_emoji_sentiment_rank(emoji)["occurrences"]
                 neu = get_emoji_sentiment_rank(emoji)["neutral"] / \
-                      get_emoji_sentiment_rank(emoji)["occurrences"]
+                    get_emoji_sentiment_rank(emoji)["occurrences"]
                 pos = get_emoji_sentiment_rank(emoji)["positive"] / \
-                      get_emoji_sentiment_rank(emoji)["occurrences"]
+                    get_emoji_sentiment_rank(emoji)["occurrences"]
             except:
                 neg = 0
                 neu = 0
@@ -69,7 +70,8 @@ def entropy(string):
     :return:
     """
     # get probability of chars in string
-    prob = [float(string.count(c)) / len(string) for c in dict.fromkeys(list(string))]
+    prob = [float(string.count(c)) / len(string) for c in
+            dict.fromkeys(list(string))]
     # calculate the entropy
     entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob])
 
@@ -94,14 +96,14 @@ def average_word_length_sentence(text):
     if num_words == 0:
         average = 0
     else:
-        average = total_length/num_words
+        average = total_length / num_words
 
     return average
 
 
 def average_word_length(text):
     cleaned_words = [strip_urls_entities_emojis(w) for w in (
-        w for l in text for w in l.split())]
+        w for length in text for w in length.split())]
     if len(cleaned_words) == 0:
         average = 0
     else:
@@ -206,7 +208,7 @@ def count_consecutive_chars(clean_text, vowels="αεηιυοωaeiou", mode="twee
         "max_seq_vowels": max(vowels_list),
         "max_seq_consonants": max(consonants_lengths),
         "n_identical_repetitions": n_identical_repetitions
-        }
+    }
 
 
 def chars_various_feats(clean_text):

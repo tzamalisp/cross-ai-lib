@@ -14,14 +14,17 @@ from datetime import datetime
 from tensorboard.plugins.hparams import api as hp
 from sklearn.metrics import classification_report, confusion_matrix
 from training.project_training_variables import nn_default_parameters
-from training.models_performance import plot_model_performance, plot_confusion_matrix
-from configuration_functions.project_configuration_variables import project_configuration
+from training.models_performance import plot_model_performance, \
+    plot_confusion_matrix
+from configuration_functions.project_configuration_variables import \
+    project_configuration
 
 
 class BaseModel:
     """
     Creates a BaseModel object, and it gives access to several functionalities.
     """
+
     def __init__(self, config, model_name=None, callbacks=False):
         """
         Constructor to initialize the model's architecture parameters.
@@ -31,7 +34,7 @@ class BaseModel:
              current datetime is used
             callbacks (boolean): if callbacks will be used.
         """
-        self.model_name = datetime.now().strftime("%Y-%m-%d-%H-%M") if\
+        self.model_name = datetime.now().strftime("%Y-%m-%d-%H-%M") if \
             model_name is None else model_name
         self.hparams = dict()
 
@@ -39,9 +42,10 @@ class BaseModel:
             Path(project_configuration["project_store_path"]).joinpath("tf")
 
         if not self.path_to_save_model.exists():
-            logging.debug("Creating directory for saving model.".
-                          format(self.path_to_save_model.relative_to(
-                project_configuration["project_store_path"])))
+            logging.debug(
+                "Creating directory for saving model"
+                ".".format(self.path_to_save_model.relative_to(
+                    project_configuration["project_store_path"])))
             self.path_to_save_model.mkdir(parents=True, exist_ok=True)
 
         set_name = self.model_name + ".tf"
@@ -51,7 +55,6 @@ class BaseModel:
         self.config["path_to_save_model"] = self.path_to_save_model
 
         self.exports_common_name = None
-
 
         log_dir = self.path_to_save_model
         self.path_to_tf_logs = log_dir
@@ -69,9 +72,9 @@ class BaseModel:
         self.learning_rate = None
         if config.get("learning_rate"):
             self.learning_rate = config["learning_rate"]
-            HP_LEARNING_RATE = hp.HParam("learning_rate",
-                                         hp.Discrete([config["learning_rate"]])
-                                        )
+            HP_LEARNING_RATE = hp.HParam(
+                "learning_rate",
+                hp.Discrete([config["learning_rate"]]))
             self.hparams[HP_LEARNING_RATE] = HP_LEARNING_RATE.domain.values[0]
         self.epochs = config.get("epochs", 0)
         self.batch_size = None
@@ -80,10 +83,10 @@ class BaseModel:
             HP_BATCH_SIZE = hp.HParam("batch_size",
                                       hp.Discrete([config["batch_size"]]))
             self.hparams[HP_BATCH_SIZE] = config["batch_size"]
-        self.nn_metrics = nn_default_parameters["nn_metrics"] if "nn_metrics"\
-            not in config.keys() else config["nn_metrics"]
-        self.nn_loss_function = nn_default_parameters["nn_loss_function"] if\
-            "nn_loss_function" not in config.keys() else\
+        self.nn_metrics = nn_default_parameters["nn_metrics"] \
+            if "nn_metrics" not in config.keys() else config["nn_metrics"]
+        self.nn_loss_function = nn_default_parameters["nn_loss_function"] if \
+            "nn_loss_function" not in config.keys() else \
             config["nn_loss_function"]
 
         # Initialize a model
@@ -144,38 +147,36 @@ class BaseModel:
             es_mode = calbacks_configuration["early_stopping"]["mode"]
             es_patience = calbacks_configuration["early_stopping"]["patience"]
             callback_early_stopping = \
-                keras.callbacks.EarlyStopping(monitor=es_monitor,
-                                              mode=es_mode,
-                                              patience=es_patience,
-                                              verbose=1 if logging.root.level
-                                                           == logging.DEBUG
-                                                        else 0,
-                                            restore_best_weights=True)
+                keras.callbacks.EarlyStopping(
+                    monitor=es_monitor,
+                    mode=es_mode,
+                    patience=es_patience,
+                    verbose=1 if logging.root.level == logging.DEBUG else 0,
+                    restore_best_weights=True)
             callbacks_list.append(callback_early_stopping)
 
         if calbacks_configuration["checkpoint"]["active"]:
             checkpoint_monitor = \
                 calbacks_configuration["checkpoint"]["monitor"]
             checkpoint_mode = calbacks_configuration["checkpoint"]["mode"]
-            checkpoint_filepath =\
+            checkpoint_filepath = \
                 Path(project_configuration["project_store_path"]). \
-                joinpath("tf").joinpath("{}.tf".format(self.model_name))
+                    joinpath("tf").joinpath("{}.tf".format(self.model_name))
             if not checkpoint_filepath.is_dir():
                 checkpoint_filepath.mkdir(parents=True, exist_ok=True)
             save_freq = calbacks_configuration["checkpoint"]["save_freq"]
             logging.debug("Save freq checkpoint: {}".format(save_freq))
             callback_checkpoint = \
-                MyModelCheckpoint(epoch_per_save=save_freq,
-                                  filepath=str(checkpoint_filepath),
-                                  monitor=checkpoint_monitor,
-                                  verbose=1 if logging.root.level ==
-                                               logging.DEBUG else 0,
-                                  save_best_only=True,
-                                  mode=checkpoint_mode
-                                                    )
+                MyModelCheckpoint(
+                    epoch_per_save=save_freq,
+                    filepath=str(checkpoint_filepath),
+                    monitor=checkpoint_monitor,
+                    verbose=1 if logging.root.level == logging.DEBUG else 0,
+                    save_best_only=True,
+                    mode=checkpoint_mode)
             callbacks_list.append(callback_checkpoint)
         if calbacks_configuration["tensorboard"]["active"]:
-            tensorboard_callback = tf.keras.callbacks.\
+            tensorboard_callback = tf.keras.callbacks. \
                 TensorBoard(log_dir=self.path_to_tf_logs)
             callbacks_list.append(tensorboard_callback)
         return callbacks_list
@@ -211,7 +212,7 @@ class BaseModel:
         assert (optimizer in ["adam", "sgd"])
 
         # define learning_rate
-        learning_rate = learning_rate if learning_rate is not None\
+        learning_rate = learning_rate if learning_rate is not None \
             else self.learning_rate
         if optimizer == "sgd":
             optimizer = keras.optimizers.SGD(lr=learning_rate)
@@ -249,17 +250,13 @@ class BaseModel:
         #     shuffle(batch_size, reshuffle_each_iteration=True).\
         #     batch(batch_size)
 
-        self.history = self.model.fit(x=np.vstack((train_dataset[0],
-                                                   validation_dataset[0])),
-                                      y=np.vstack((train_dataset[1],
-                                                   validation_dataset[1])),
-                                      epochs=epochs,
-                                      # steps_per_epoch=steps_per_epoch,z
-                                      callbacks=[] if not self.callbacks
-                                                   else self.callbacks_init(),
-                                      verbose=verbose,
-                                      validation_split=0.2
-                                      )
+        self.history = self.model.fit(
+            x=np.vstack((train_dataset[0], validation_dataset[0])),
+            y=np.vstack((train_dataset[1], validation_dataset[1])),
+            epochs=epochs,
+            callbacks=[] if not self.callbacks else self.callbacks_init(),
+            verbose=verbose,
+            validation_split=0.2)
         # if "loss" in self.history.history.keys():
         #     self.performance_history["loss"] += self.history.history["loss"]
         # if "val_loss" in self.history.history.keys():
@@ -299,9 +296,9 @@ class BaseModel:
             self.evaluation_results["eval_" + key] = eval_results[ind]
 
         # Create the common filename to save the model exports
-        self.exports_common_name =\
+        self.exports_common_name = \
             "{0:.3f}_{1}".format(self.evaluation_results["eval_accuracy"],
-                                                        self.model_name)
+                                 self.model_name)
 
         return self.evaluation_results
 
@@ -325,7 +322,7 @@ class BaseModel:
                   " (MC iterations {}).".format(self.mc_iterations))
             predictions_all = np.empty(())
             predictions_i = self.model.predict(data)
-            predictions_all =\
+            predictions_all = \
                 np.empty(((self.mc_iterations,) + predictions_i.shape))
             predictions_all[0] = predictions_i
             for mc_it in range(1, self.mc_iterations):
@@ -348,8 +345,8 @@ class BaseModel:
 
         if self.model is None:
             raise Exception("Model not configured and trained !")
-        model_saved =\
-            self.path_to_save_model.exists() and\
+        model_saved = \
+            self.path_to_save_model.exists() and \
             self.path_to_save_model.joinpath("saved_model.pb").exists()
         if not model_saved:
             self.model.save(self.path_to_save_model, save_format="tf")
@@ -375,7 +372,6 @@ class BaseModel:
         logging.debug("Loading model from {} \n".format(path_to_saved_model))
         self.model = tf.keras.models.load_model(path_to_saved_model)
 
-
         return
 
     def plot_model(self, path_to_export=None):
@@ -389,8 +385,9 @@ class BaseModel:
 
         """
         if path_to_export is None:
-            path_to_export = Path(project_configuration["project_store_path"])\
-                .joinpath("reports")
+            path_to_export = Path(
+                project_configuration["project_store"
+                                      "_path"]).joinpath("reports")
         path_to_export = path_to_export.joinpath("{}_model.png"
                                                  "".format(self.model_name))
         if not path_to_export.parent.is_dir():
@@ -406,9 +403,9 @@ class BaseModel:
         if save:
             set_name = self.exports_common_name + "_accuracy_loss" + ".png"
             path_to_save_mp = \
-                Path(project_configuration["project_store_path"]).\
-                joinpath("reports"). \
-                joinpath(self.exports_common_name).joinpath(set_name)
+                Path(project_configuration["project_store_path"]). \
+                    joinpath("reports"). \
+                    joinpath(self.exports_common_name).joinpath(set_name)
         plot_model_performance(self.history,
                                path_to_save=path_to_save_mp if save else None)
 
@@ -427,9 +424,11 @@ class BaseModel:
             if path_to_save is None:
                 set_name = self.exports_common_name + "_cm_test-data" + ".png"
                 path_to_save_cm = \
-                    Path(project_configuration["project_store_path"]).\
-                    joinpath("reports").joinpath(self.exports_common_name).\
-                    joinpath(set_name)
+                    Path(
+                        project_configuration["project_store_path"]
+                    ).joinpath("reports"
+                               ).joinpath(self.exports_common_name
+                                          ).joinpath(set_name)
             else:
                 path_to_save_cm = path_to_save
         plot_confusion_matrix(cm, descriptions, normalize=True,
@@ -473,7 +472,7 @@ class BaseModel:
         self.model.summary()
 
     def save_run_summary(self):
-        with tf.summary.create_file_writer(str(self.path_to_tf_logs)).\
+        with tf.summary.create_file_writer(str(self.path_to_tf_logs)). \
                 as_default():
             hp.hparams(self.hparams)  # record the values used in this trial
             accuracy = self.evaluation_results["eval_accuracy"]

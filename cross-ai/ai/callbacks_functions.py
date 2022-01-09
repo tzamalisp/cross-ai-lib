@@ -72,8 +72,8 @@ def callback_checkpoint(config):
 
     return ModelCheckpoint(filepath=file_path,
                            monitor=config["clb_checkpoint"]["monitor"],
-                           save_best_only=
-                           config["clb_checkpoint"]["save_best_only"])
+                           save_best_only=config["clb_checkpoint"]
+                           ["save_best_only"])
 
 
 def callback_tensorboard(config):

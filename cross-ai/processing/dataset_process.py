@@ -1,5 +1,6 @@
 """
-This file is responsible for loading the dataset which is stored in the disk or in memory,
+This file is responsible for loading the dataset which is stored in the disk or
+in memory,
 in a format that allows its usage in an ML or DL model.
 """
 from pathlib import Path
@@ -27,8 +28,9 @@ class Dataset:
     """
 
     """
+
     def __init__(self):
-        self.path_to_dataset_directory =\
+        self.path_to_dataset_directory = \
             Path(project_configuration["project_directories"]["dataset"])
         self.X = None
         self.y = None
@@ -63,7 +65,7 @@ class Dataset:
 
     def load_dataset_in_path(self, path_to_npz):
         """
-        Load a dataset from a path. 
+        Load a dataset from a path.
         Args:
             path_to_npz: Path to an npz file containing a dataset with X,y in
             saved arrays
@@ -181,7 +183,7 @@ def save_dataset(saveid, train_X, test_X, train_y, test_y, path_to_save=None):
     logging.info("Saving dataset with configuration uuid {}".format(saveid))
     filename = saveid + ".npz"
     if path_to_save is None:
-        path_to_save = Path(project_configuration["project_store_path"]).\
+        path_to_save = Path(project_configuration["project_store_path"]). \
             joinpath("datasets").joinpath(filename)
     # Create a dictionary where each key name is one of the given arguments.
     save_dict = dict()
@@ -214,7 +216,7 @@ def load_dataset_npz(preprocessing_uuid, path_to_datasets_dir=None):
     """
     dataset_file_name = "{}.npz".format(preprocessing_uuid)
     project_datasets_dir = Path(project_configuration["project_store_path"]). \
-            joinpath("datasets")
+        joinpath("datasets")
     path_to_project_data = project_datasets_dir.joinpath(dataset_file_name)
     if not project_datasets_dir.is_dir():
         project_datasets_dir.mkdir(parents=True)
@@ -345,7 +347,8 @@ def dataset_features_extraction(dfs_list, dfs_labels, features_categories,
         if df.shape[0] != 0:
             if dataset_domain == "motion":
                 feats = motion_features_extraction(
-                    df, feature_categories=features_categories,
+                    df,
+                    feature_categories=features_categories,
                     sampling_frequency=100,
                     features_extraction_parameters=
                     features_extraction_parameters)
@@ -380,8 +383,7 @@ def pca_x_components_analysis(data, components, labels, path_to_save,
                      xlabel="First principal component",
                      ylabel="Second Principal Component",
                      c=labels,
-                     path_to_save=
-                     path_to_save.joinpath(
+                     path_to_save=path_to_save.joinpath(
                          "pca_{}_components.png".format(components_str)))
     elif components == 3:
         plot_scatter([pca_x_data[:, 0], pca_x_data[:, 1], pca_x_data[:, 2]],
@@ -389,8 +391,7 @@ def pca_x_components_analysis(data, components, labels, path_to_save,
                      ylabel="Second Principal Component",
                      zlabel="Third Principal Component",
                      c=labels,
-                     path_to_save=
-                     path_to_save.joinpath(
+                     path_to_save=path_to_save.joinpath(
                          "pca_{}_components.png".format(components_str)))
     else:
         logging.info("Components larger than 3. Cannot plot scatterplot.")
@@ -413,8 +414,7 @@ def pca_x_components_analysis(data, components, labels, path_to_save,
     columns = kwargs.get("columns", None)
     pca_x_components = pd.DataFrame(pca_x.components_, columns=columns)
     plot_dataframe_heatmap(data=pca_x_components,
-                           path_to_save=
-                           path_to_save.joinpath(
+                           path_to_save=path_to_save.joinpath(
                                "pca_{}_components_"
                                "data_frame.png".format(components_str)))
     logging.info("")
@@ -427,8 +427,7 @@ def pca_x_components_analysis(data, components, labels, path_to_save,
     pca_x_components_abs = pd.DataFrame(abs(pca_x.components_),
                                         columns=columns)
     plot_dataframe_heatmap(data=pca_x_components,
-                           path_to_save=
-                           path_to_save.joinpath(
+                           path_to_save=path_to_save.joinpath(
                                "pca_{}_components_data_"
                                "frame_abs_values.png".format(components_str)))
     logging.info("")

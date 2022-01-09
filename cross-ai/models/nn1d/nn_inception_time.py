@@ -19,7 +19,7 @@ from tools.ai.argument_checker import model_arguments_check_transform
 class ClassifierInceptionTime:
 
     def __init__(self, number_of_classes=None, train_data_shape=None,
-                 nb_filters=32,use_residual=True, use_bottleneck=True,
+                 nb_filters=32, use_residual=True, use_bottleneck=True,
                  depth=6, kernel_size=41, drp_input=0, drp_high=0,
                  spatial=False, kernel_initialize="he_uniform",
                  kernel_regularize=None, kernel_constraint=None,
