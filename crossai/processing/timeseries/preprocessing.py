@@ -48,7 +48,8 @@ class Segment:
 
 class SegmentsCollection:
     """
-    Fundamental class that represents information for a signal or collection of signals,
+    Fundamental class that represents information for a signal or collection
+     of signals,
     regarding their label at specific parts of the waveforms.
     """
 

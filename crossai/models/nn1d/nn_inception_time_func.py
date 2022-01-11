@@ -10,10 +10,10 @@ from tensorflow.keras.constraints import MaxNorm
 from tensorflow.keras.layers import Concatenate
 from tensorflow.keras.layers import GlobalAveragePooling1D
 from tensorflow.keras.layers import Add
-# cross-ai imports
-from tools.ai.ai_layers import dropout_layer
-from tools.ai.model_compile import compile_model
-from tools.ai.argument_checker import model_arguments_check_transform
+# crossai imports
+from crossai.ai.ai_layers import dropout_layer
+from crossai.ai.model_compile import compile_model
+from crossai.ai.argument_checker import model_arguments_check_transform
 
 
 def inception_time(number_of_classes=None, train_data_shape=None,

@@ -1,4 +1,5 @@
 from scipy import interpolate
+import numpy as np
 
 
 def interpolate_matrix(matrix, length, axis=0):
@@ -6,6 +7,7 @@ def interpolate_matrix(matrix, length, axis=0):
     Produces a matrix of a desired size with interpolated values per column
     axis=0 or per row axis=1.
     Args:
+        matrix:
         axis (int): The axis that the interpolation will be applied. A column
                     axis=0 / row axis=1.matrix (numpy.ndarray): An np.array
                     that the interpolation will be applied to.

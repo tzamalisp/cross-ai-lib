@@ -8,9 +8,9 @@ from tensorflow.keras.layers import Bidirectional
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.constraints import MaxNorm
 from tensorflow.keras import regularizers
-# cross-ai imports
-from tools.ai.ai_layers import dropout_layer
-from tools.ai.model_compile import compile_model
+# crossai imports
+from crossai.ai.ai_layers import dropout_layer
+from crossai.ai.model_compile import compile_model
 
 
 def bi_lstm(number_of_classes, train_data_shape, drp_input=0, drp_mid=0,

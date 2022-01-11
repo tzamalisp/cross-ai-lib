@@ -12,9 +12,9 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.constraints import MaxNorm
 import tensorflow_addons as tfa
-# cross-ai imports
-from tools.ai.ai_layers import dropout_layer
-from tools.ai.model_compile import compile_model
+# crossai imports
+from crossai.ai.ai_layers import dropout_layer
+from crossai.ai.model_compile import compile_model
 
 
 def xception_time(number_of_classes=None, train_data_shape=None,
