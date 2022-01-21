@@ -11,9 +11,8 @@ from tensorflow.keras.layers import Concatenate
 from tensorflow.keras.layers import GlobalAveragePooling1D
 from tensorflow.keras.layers import Add
 # crossai imports
-from crossai.ai.ai_layers import dropout_layer
-from crossai.ai.model_compile import compile_model
-from crossai.ai.argument_checker import model_arguments_check_transform
+from crossai.ts.ai import dropout_layer
+from crossai.ts.ai import compile_model
 
 
 def inception_time(number_of_classes=None, train_data_shape=None,

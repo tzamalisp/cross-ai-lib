@@ -1,6 +1,5 @@
 # import necessary libraries
 
-import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, Conv1D, Add
 from tensorflow.keras.layers import SeparableConv1D
 from tensorflow.keras.layers import BatchNormalization
@@ -13,8 +12,8 @@ from tensorflow.keras.regularizers import l2
 from tensorflow.keras.constraints import MaxNorm
 import tensorflow_addons as tfa
 # crossai imports
-from crossai.ai.ai_layers import dropout_layer
-from crossai.ai.model_compile import compile_model
+from crossai.ts.ai import dropout_layer
+from crossai.ts.ai import compile_model
 
 
 def xception_time(number_of_classes=None, train_data_shape=None,

@@ -1,6 +1,6 @@
 import os
 import logging
-from crossai.ai.callbacks_learning_rate import callback_lr_scheduler
+from crossai.ts.ai.callbacks_learning_rate import callback_lr_scheduler
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.callbacks import TensorBoard
 

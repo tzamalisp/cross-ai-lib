@@ -100,20 +100,19 @@ def scale_image(image_array):
     return image_array / 255
 
 
-def scale_dataset(config, dataset, save=True):
+def scale_dataset(config, dataset, scaler_path, save=True):
     """
 
     Args:
         config: Should contain the keys `uuid` and `scaling`.
         dataset:
+        scaler_path:
         save:
 
     Returns:
 
     """
-    project_dir = Path(project_configuration["project_store_path"])
-    scaler_path = project_dir.joinpath("scalers")
-    scaler_name = config["uuid"] + ".pkl"
+    scaler_name = scaler_path
     if isinstance(scaler_name, int):
         scaler_name = str(scaler_name)
     if not scaler_path.joinpath("{}".format(scaler_name)).exists():
@@ -140,7 +139,7 @@ def scale_dataset(config, dataset, save=True):
     return scaled_dataset, scaler.scaler
 
 
-def transform_dataset(config, dataset, transformer=None):
+def transform_dataset(config, dataset, scaler_path, transformer=None):
     """
     Loads a scaler object according to classification task and transforms the data.
     Args:
@@ -151,9 +150,8 @@ def transform_dataset(config, dataset, transformer=None):
 
     """
     if transformer is None:
-        project_dir = Path(project_configuration["project_store_path"])
-        scaler_path = project_dir.joinpath("scalers")
-        scaler_name = config["uuid"] + ".pkl"
+
+        scaler_name = scaler_path
         logging.debug("Loading scaler {}".format(scaler_name))
         transformer = Transformer(data=dataset, path_to_scaler_dir=scaler_path,
                                   scaler_name=scaler_name)

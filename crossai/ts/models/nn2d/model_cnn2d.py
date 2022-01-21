@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers
 import logging
-from crossai.models.nn1d.base_model import BaseModel
+from crossai.ts.models.nn1d.base_model import BaseModel
 from tensorflow.keras.layers import BatchNormalization, Conv2D, Dense,\
     Dropout, Flatten, MaxPooling2D
 
