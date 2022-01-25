@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
-from crossai.ts.models.nn1d.base_model import BaseModel
+from crossai.models.nn1d.base_model import BaseModel
 from tensorflow.keras.layers import Activation, BatchNormalization, Conv1D, \
     MaxPooling1D
 

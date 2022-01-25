@@ -15,7 +15,7 @@ from sklearn.utils import shuffle
 from tqdm import tqdm
 from configuration_functions.project_configuration_variables \
     import project_configuration
-from crossai.ts.processing.timeseries.motion.features_extraction \
+from crossai.ts.processing.motion.features_extraction \
     import motion_features_extraction
 from training.scaling import scale_dataset, transform_dataset
 import logging

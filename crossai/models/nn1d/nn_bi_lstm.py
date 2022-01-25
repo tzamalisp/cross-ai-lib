@@ -8,7 +8,7 @@ from tensorflow.keras.layers import Bidirectional
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.constraints import MaxNorm
 # crossai imports
-from crossai.ts.ai import compile_model
+from crossai.ai import compile_model
 
 
 def bi_lstm(number_of_classes, train_data_shape, drp_input=0, drp_mid=0,

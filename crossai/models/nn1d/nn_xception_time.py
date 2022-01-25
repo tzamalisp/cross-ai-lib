@@ -12,8 +12,8 @@ from tensorflow.keras.regularizers import l2
 from tensorflow.keras.constraints import MaxNorm
 import tensorflow_addons as tfa
 # crossai imports
-from crossai.ts.ai import dropout_layer
-from crossai.ts.ai import compile_model
+from crossai.ai import dropout_layer
+from crossai.ai import compile_model
 
 
 def xception_time(number_of_classes=None, train_data_shape=None,
