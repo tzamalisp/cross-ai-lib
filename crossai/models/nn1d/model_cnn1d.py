@@ -3,9 +3,12 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
-from crossai.models.nn1d.base_model import BaseModel
+from models.nn.base_model import BaseModel
+from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Activation, BatchNormalization, Conv1D, \
-    MaxPooling1D
+    Dense, Dropout, Flatten, LeakyReLU, LSTM, \
+    MaxPooling1D, TimeDistributed
+from tensorboard.plugins.hparams import api as hp
 
 
 class CNN1D(BaseModel):
@@ -50,15 +53,16 @@ class CNN1D(BaseModel):
 
 
     """
+
     def read_cnn1d_configuration(self, config):
-        self.arch.num_of_classes = config["number_of_classes"]
-        self.arch.kernel_size = config["kernel"]
-        self.arch.conv_layers = config["conv_layers"]
-        self.arch.filters = config["filters"]
-        self.arch.dense_layers = config["dense_layers"]
-        self.arch.dense_units = config["dense_units"]
-        self.arch.input_shape = config["dataset_shape"]
-        self.arch.dropout_percent = config["dropout"]
+        self.num_of_classes = config["number_of_classes"]
+        self.kernel_size = config["kernel"]
+        self.conv_layers = config["conv_layers"]
+        self.filters = config["filters"]
+        self.dense_layers = config["dense_layers"]
+        self.dense_units = config["dense_units"]
+        self.input_shape = config["dataset_shape"]
+        self.dropout_percent = config["dropout"]
 
         # tensorboard initialization
 
@@ -69,11 +73,15 @@ class CNN1D(BaseModel):
         # print('Conv1D input shape:', shaping)
         debug_msg_str = "model name : " + self.model_name + "\n"
         debug_msg_str = debug_msg_str + "shaping : " + repr(
-            (None, self.arch.input_shape[0], self.arch.input_shape[1])) + "\n"
-        debug_msg_str = debug_msg_str + "kernel : " + repr(self.arch.kernel_size) + "\n"
-        debug_msg_str = debug_msg_str + "filters : " + repr(self.arch.filters) + "\n"
-        debug_msg_str = debug_msg_str + "n_cnn : " + repr(self.arch.conv_layers) + "\n"
-        debug_msg_str = debug_msg_str + "Dense units : " + repr(self.arch.dense_units) + "\n"
+            (None, self.input_shape[0], self.input_shape[1])) + "\n"
+        debug_msg_str = debug_msg_str + "kernel : " + repr(
+            self.kernel_size) + "\n"
+        debug_msg_str = debug_msg_str + "filters : " + repr(
+            self.filters) + "\n"
+        debug_msg_str = debug_msg_str + "n_cnn : " + repr(
+            self.conv_layers) + "\n"
+        debug_msg_str = debug_msg_str + "Dense units : " + repr(
+            self.dense_units) + "\n"
         logging.debug(debug_msg_str)
         print(debug_msg_str)
 
@@ -83,9 +91,9 @@ class CNN1D(BaseModel):
         # Input layer
         self.model.add(
             Conv1D(
-                filters=self.arch.filters[0],
-                kernel_size=self.arch.kernel_size,
-                input_shape=self.arch.input_shape,
+                filters=self.filters[0],
+                kernel_size=self.kernel_size,
+                input_shape=self.input_shape,
                 kernel_initializer="he_uniform"
             )
         )
@@ -94,11 +102,11 @@ class CNN1D(BaseModel):
         self.model.add(MaxPooling1D(pool_size=4))
 
         # Additional CONV layers
-        for conv_l in range(1, self.arch.conv_layers):
+        for conv_l in range(1, self.conv_layers):
             self.model.add(
                 Conv1D(
-                    filters=self.arch.filters[conv_l],  # filters = 64
-                    kernel_size=self.arch.kernel_size,
+                    filters=self.filters[conv_l],  # filters = 64
+                    kernel_size=self.kernel_size,
                     kernel_initializer="he_uniform"
                 )
             )
@@ -107,17 +115,18 @@ class CNN1D(BaseModel):
             self.model.add(MaxPooling1D(pool_size=4))
 
         self.model.add(keras.layers.Flatten())
-        for d in range(0, self.arch.dense_layers):
+        for d in range(0, self.dense_layers):
             self.model.add(
                 keras.layers.Dense(
-                    self.arch.dense_units[d],
+                    self.dense_units[d],
                     activation="relu"
                 )
             )
-            self.model.add(keras.layers.Dropout(self.arch.dropout_percent))
+            self.model.add(keras.layers.Dropout(self.dropout_percent))
 
         # Dense layer - Output layer
-        self.model.add(keras.layers.Dense(self.arch.num_of_classes, activation="softmax"))  # activation = softmax
+        self.model.add(keras.layers.Dense(self.num_of_classes,
+                                          activation="softmax"))  # activation = softmax
 
     def freeze_layers(self, n):
         """Short summary.
@@ -142,32 +151,37 @@ class CNN1D(BaseModel):
 
 class AppleModel(BaseModel):
     def define_model(self, config=None):
-        self.arch.num_of_classes = config["number_of_classes"]
-        self.arch.kernel_size = config["kernel"]
-        self.arch.conv_layers = config["conv_layers"]
-        self.arch.filters = config["filters"]
-        self.arch.dense_layers = config["dense_layers"]
-        self.arch.dense_units = config["dense_units"]
-        self.arch.input_shape = config["dataset_shape"]
-        self.arch.dropout_percent = config["dropout"]
-        self.arch.branch = config["branch"]
+        self.num_of_classes = config["number_of_classes"]
+        self.kernel_size = config["kernel"]
+        self.conv_layers = config["conv_layers"]
+        self.filters = config["filters"]
+        self.dense_layers = config["dense_layers"]
+        self.dense_units = config["dense_units"]
+        self.input_shape = config["dataset_shape"]
+        self.dropout_percent = config["dropout"]
+        self.branch = config["branch"]
 
         debug_msg_str = "model name : " + self.model_name + "\n"
         debug_msg_str = debug_msg_str + "shaping : " + repr(
-            (None, self.arch.input_shape[0], self.arch.input_shape[1])) + "\n"
-        debug_msg_str = debug_msg_str + "kernel : " + repr(self.arch.kernel_size) + "\n"
-        debug_msg_str = debug_msg_str + "filters : " + repr(self.arch.filters) + "\n"
-        debug_msg_str = debug_msg_str + "n_cnn : " + repr(self.arch.conv_layers) + "\n"
-        debug_msg_str = debug_msg_str + "Dense units : " + repr(self.arch.dense_units) + "\n"
-        debug_msg_str = debug_msg_str + "Branch separation : " + repr(self.arch.branch) + "\n"
+            (None, self.input_shape[0], self.input_shape[1])) + "\n"
+        debug_msg_str = debug_msg_str + "kernel : " + repr(
+            self.kernel_size) + "\n"
+        debug_msg_str = debug_msg_str + "filters : " + repr(
+            self.filters) + "\n"
+        debug_msg_str = debug_msg_str + "n_cnn : " + repr(
+            self.conv_layers) + "\n"
+        debug_msg_str = debug_msg_str + "Dense units : " + repr(
+            self.dense_units) + "\n"
+        debug_msg_str = debug_msg_str + "Branch separation : " + repr(
+            self.branch) + "\n"
         logging.debug(debug_msg_str)
         print(debug_msg_str)
-        if self.arch.branch == "per_signal":
-            branch_shape = (self.arch.input_shape[0], 1)
-            number_of_inputs = self.arch.input_shape[1]
-        elif self.arch.branch == "per_sensor":
-            branch_shape = (self.arch.input_shape[0], 3)
-            number_of_inputs = self.arch.input_shape[1] // 3
+        if self.branch == "per_signal":
+            branch_shape = (self.input_shape[0], 1)
+            number_of_inputs = self.input_shape[1]
+        elif self.branch == "per_sensor":
+            branch_shape = (self.input_shape[0], 3)
+            number_of_inputs = self.input_shape[1] // 3
         # TODO discuss/decide how the framework would take action in case of
         # magnitudes in the input (Hence the model input would opt be dividable by 3).
 
@@ -176,29 +190,37 @@ class AppleModel(BaseModel):
         for i in range(0, number_of_inputs):
             branch = None
             input_branches.append(branch)
-            input_branches[i] = keras.layers.Input(shape=branch_shape, name="{}".format(i))
+            input_branches[i] = keras.layers.Input(shape=branch_shape,
+                                                   name="{}".format(i))
             model = None
             model_branches.append(model)
             # Create model branch on input
-            model_branches[i] = keras.layers.Conv1D(filters=self.arch.filters[0],  # This is always the first conv
-                                                    kernel_size=self.arch.kernel_size,
-                                                    activation="relu",  # activation = 'relu'
+            model_branches[i] = keras.layers.Conv1D(filters=self.filters[0],
+                                                    # This is always the first conv
+                                                    kernel_size=self.kernel_size,
+                                                    activation="relu",
+                                                    # activation = 'relu'
                                                     input_shape=branch_shape,
-                                                    padding="valid",  # oned_padding = 'valid' --> default
-                                                    strides=1  # strides = 1 --> default
+                                                    padding="valid",
+                                                    # oned_padding = 'valid' --> default
+                                                    strides=1
+                                                    # strides = 1 --> default
                                                     )(input_branches[i])
             model_branches[i] = keras.layers.MaxPooling1D(pool_size=4,
-                                                          padding="valid")(model_branches[i])
+                                                          padding="valid")(
+                model_branches[i])
 
         hidden0 = keras.layers.concatenate(model_branches)
 
         top = keras.layers.Flatten()(hidden0)
-        for d in range(0, self.arch.dense_layers):
+        for d in range(0, self.dense_layers):
             top = keras.layers.Dense(
-                    self.arch.dense_units[d],
-                    activation="relu"  # activation = "relu"
-                )(top)
-        softmax_output = keras.layers.Dense(self.arch.num_of_classes, activation="softmax", name="output")(top)
+                self.dense_units[d],
+                activation="relu"  # activation = "relu"
+            )(top)
+        softmax_output = keras.layers.Dense(self.num_of_classes,
+                                            activation="softmax",
+                                            name="output")(top)
 
         self.model = keras.models.Model(
             inputs=input_branches,
@@ -219,12 +241,19 @@ class AppleModel(BaseModel):
         """
 
         # super().fit(train_slices_tuple, validation_tuple, verbose)
-        train_slices_tuple = transform_to_apple_model_dataset(train_dataset, self.arch.branch)
-        validation_tuple = transform_to_apple_model_dataset(validation_dataset, self.arch.branch)
-        print("x dataset train/val : {} , {}".format(train_slices_tuple[0][0].shape, validation_tuple[0][0].shape))
-        print("x dataset train/val : {} , {}".format(train_slices_tuple[0][1].shape, validation_tuple[0][1].shape))
-        print("y dataset train/val : {} , {}".format(train_slices_tuple[1].shape, validation_tuple[1].shape))
-        x = [np.vstack([train_slices_tuple[0][i], validation_tuple[0][i]]) for i in
+        train_slices_tuple = transform_to_apple_model_dataset(train_dataset,
+                                                              self.branch)
+        validation_tuple = transform_to_apple_model_dataset(validation_dataset,
+                                                            self.branch)
+        print("x dataset train/val : {} , {}".format(
+            train_slices_tuple[0][0].shape, validation_tuple[0][0].shape))
+        print("x dataset train/val : {} , {}".format(
+            train_slices_tuple[0][1].shape, validation_tuple[0][1].shape))
+        print(
+            "y dataset train/val : {} , {}".format(train_slices_tuple[1].shape,
+                                                   validation_tuple[1].shape))
+        x = [np.vstack([train_slices_tuple[0][i], validation_tuple[0][i]]) for
+             i in
              range(0, len(train_slices_tuple[0]))]
         x = tuple(x)
         y = np.vstack([train_dataset[1], validation_dataset[1]])
@@ -241,11 +270,14 @@ class AppleModel(BaseModel):
         if "loss" in self.history.history.keys():
             self.performance_history["loss"] += self.history.history["loss"]
         if "val_loss" in self.history.history.keys():
-            self.performance_history["val_loss"] += self.history.history["val_loss"]
+            self.performance_history["val_loss"] += self.history.history[
+                "val_loss"]
         if "accuracy" in self.history.history.keys():
-            self.performance_history["accuracy"] += self.history.history["accuracy"]
+            self.performance_history["accuracy"] += self.history.history[
+                "accuracy"]
         if "val_accuracy" in self.history.history.keys():
-            self.performance_history["val_accuracy"] += self.history.history["val_accuracy"]
+            self.performance_history["val_accuracy"] += self.history.history[
+                "val_accuracy"]
 
     def evaluate(self, test_X, test_y):
         """
@@ -259,7 +291,8 @@ class AppleModel(BaseModel):
         """
         batch_size = self.batch_size
         logging.debug("Evaluate test_X shape : {}".format(test_X.shape))
-        test_tuple = transform_to_apple_model_dataset((test_X, test_y), self.arch.branch)
+        test_tuple = transform_to_apple_model_dataset((test_X, test_y),
+                                                      self.branch)
         eval_results = self.model.evaluate(x=test_tuple[0], y=test_tuple[1],
                                            batch_size=batch_size,
                                            verbose=1 if logging.root.level == logging.DEBUG else 0)
@@ -267,7 +300,8 @@ class AppleModel(BaseModel):
             self.evaluation_results["eval_" + key] = eval_results[ind]
 
         # Create the common filename to save the model exports
-        self.exports_common_name = "{0:.3f}_{1}".format(self.evaluation_results["eval_accuracy"], self.model_name)
+        self.exports_common_name = "{0:.3f}_{1}".format(
+            self.evaluation_results["eval_accuracy"], self.model_name)
 
         return self.evaluation_results
 
@@ -285,28 +319,30 @@ class AppleModel(BaseModel):
         logging.debug("Model predictions..")
         if isinstance(data, pd.DataFrame):
             data = data.values
-        data = transform_to_apple_model_dataset(data, self.arch.branch)
+        data = transform_to_apple_model_dataset(data, self.branch)
         predictions = self.model.predict(data)
         pd.options.display.float_format = "{:,.3f}".format
         predictions = pd.DataFrame(predictions, columns=labels)
         return predictions
-    
-            
+
+
 def transform_to_apple_model_dataset(data, branch_config):
     """
-    
+
     Args:
-        data: 
-        branch_config: 
+        data:
+        branch_config:
 
     Returns:
 
     """
     if isinstance(data, tuple):
         if branch_config == "per_signal":
-            data_slices = [data[0][:, :, i] for i in range(0, data[0].shape[2])]
+            data_slices = [data[0][:, :, i] for i in
+                           range(0, data[0].shape[2])]
         elif branch_config == "per_sensor":
-            data_slices = [data[0][:, :, i:i + 3] for i in range(0, data[0].shape[2], 3)]
+            data_slices = [data[0][:, :, i:i + 3] for i in
+                           range(0, data[0].shape[2], 3)]
         else:
             msg = "Unknown branch split configuration {}".format(branch_config)
             logging.error(msg)
@@ -317,7 +353,8 @@ def transform_to_apple_model_dataset(data, branch_config):
         if branch_config == "per_signal":
             data_slices = [data[:, :, i] for i in range(0, data.shape[2])]
         elif branch_config == "per_sensor":
-            data_slices = [data[:, :, i:i + 3] for i in range(0, data.shape[2], 3)]
+            data_slices = [data[:, :, i:i + 3] for i in
+                           range(0, data.shape[2], 3)]
         else:
             msg = "Unknown branch split configuration {}".format(branch_config)
             logging.error(msg)
@@ -330,36 +367,42 @@ class Multikernel(CNN1D):
     def define_model(self, config=None):
         self.read_cnn1d_configuration(config)
 
-        self.n_branches = len(self.arch.kernel_size)
+        self.n_branches = len(self.kernel_size)
         print("n_branches : {}".format(self.n_branches))
-        input_branch = keras.layers.Input(shape=self.arch.input_shape, name="input")
+        input_branch = keras.layers.Input(shape=self.input_shape, name="input")
         model_branches = list()
         for i in range(0, self.n_branches):
-
-
             model = None
             model_branches.append(model)
             # Create model branch on input
-            model_branches[i] = keras.layers.Conv1D(filters=self.arch.filters[0],  # This is always the first conv
-                                                    kernel_size=self.arch.kernel_size[i],
-                                                    activation="relu",  # activation = 'relu'
-                                                    input_shape=self.arch.input_shape,
-                                                    padding="valid",  # oned_padding = 'valid' --> default
-                                                    strides=1  # strides = 1 --> default
+            model_branches[i] = keras.layers.Conv1D(filters=self.filters[0],
+                                                    # This is always the first conv
+                                                    kernel_size=
+                                                    self.kernel_size[i],
+                                                    activation="relu",
+                                                    # activation = 'relu'
+                                                    input_shape=self.input_shape,
+                                                    padding="valid",
+                                                    # oned_padding = 'valid' --> default
+                                                    strides=1
+                                                    # strides = 1 --> default
                                                     )(input_branch)
             model_branches[i] = keras.layers.MaxPooling1D(pool_size=2,
-                                                          padding="valid")(model_branches[i])
+                                                          padding="valid")(
+                model_branches[i])
             model_branches[i] = keras.layers.Flatten()(model_branches[i])
 
             # Concatenated layer
         top = keras.layers.concatenate(model_branches)
 
-        for d in range(0, self.arch.dense_layers):
+        for d in range(0, self.dense_layers):
             top = keras.layers.Dense(
-                self.arch.dense_units[d],
+                self.dense_units[d],
                 activation="relu"  # activation = "relu"
             )(top)
-        softmax_output = keras.layers.Dense(self.arch.num_of_classes, activation="softmax", name="output")(top)
+        softmax_output = keras.layers.Dense(self.num_of_classes,
+                                            activation="softmax",
+                                            name="output")(top)
 
         self.model = keras.models.Model(
             inputs=input_branch,

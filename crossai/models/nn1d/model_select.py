@@ -3,14 +3,16 @@ According to the arguments, it selects the corresponding model class.
 """
 
 import logging
-from crossai.models.nn1d.base_model import BaseModel
+from models.nn.base_model import BaseModel
 
-from crossai.models.nn1d.model_cnn1d import CNN1D
-from crossai.models.nn1d.model_cnn1d import Multikernel
-from crossai.models.nn2d.model_cnn2d import CNN2D
-from crossai.models.nn1d.model_bilstm import BiLSTM
-from crossai.models.nn1d.model_cnn1d import AppleModel
-from crossai.models.nn1d.model_cnn_lstm import CNN1DLSTM, Conv1DLSTM
+from models.nn.model_cnn1d import CNN1D
+from models.nn.model_cnn1d import Multikernel
+from models.nn.model_cnn2d import CNN2D
+from models.nn.model_bilstm import BiLSTM
+from models.nn.model_cnn1d import AppleModel
+from models.nn.model_xceptiontime import XceptionTimeModel
+from models.nn.model_inceptiontime import InceptionTimeModel
+from models.nn.model_cnn_lstm import CNN1DLSTM, Conv1DLSTM
 
 
 def model_select(task_configuration):

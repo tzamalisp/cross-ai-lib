@@ -11,7 +11,7 @@ from processing.motion.plot_motion_sensors_data import plot_spectrogram
 from processing.signal.features_extraction import calculate_rms
 from utilities.visualizations import fig2img, merge_pil_images
 
-class RollingWindowHandler:
+class SlidingWindowHandler:
     def __init__(self, data, overlap, window_size):
         """
 
@@ -127,7 +127,7 @@ class RollingWindowHandler:
         return np.array(labels)
 
 
-def apply_rw(accepted_dfs, rw_size, overlap_percent, labels=None):
+def apply_sw(accepted_dfs, rw_size, overlap_percent, labels=None):
     """
     Perform rolling window segmentation on a given 2-D dataframe. If provided, the labels
     are also produced for each rolling window segment.
@@ -150,7 +150,7 @@ def apply_rw(accepted_dfs, rw_size, overlap_percent, labels=None):
 
     logging.debug("Transformation with Rolling Window and unification of all data to one ndarray.")
     for ind, df in tqdm(enumerate(accepted_dfs)):
-        rwh = RollingWindowHandler(df.values, overlap_percent, rw_size)
+        rwh = SlidingWindowHandler(df.values, overlap_percent, rw_size)
         segments_array = rwh.segments_ndarray
         segments_array_length = segments_array.shape[0]
         dataset_X.append(segments_array)

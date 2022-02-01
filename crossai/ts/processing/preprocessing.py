@@ -946,7 +946,7 @@ def calculate_sampling_frequency(df):
     return f_s_calculated
 
 
-def apply_rw(accepted_dfs, rw_size, overlap_percent, labels=None):
+def apply_sw(accepted_dfs, rw_size, overlap_percent, labels=None):
     """
     Perform rolling window segmentation on a given 2-D dataframe. If provided, the labels
     are also produced for each rolling window segment.
