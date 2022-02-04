@@ -13,7 +13,7 @@ from tensorflow.keras.constraints import MaxNorm
 from tensorflow.keras.layers import Concatenate
 from tensorflow.keras.layers import GlobalAveragePooling1D
 from tensorflow.keras.layers import Add
-from models.nn.base_model import dropout_layer
+from crossai.models.nn1d.base_model import dropout_layer
 
 
 class InceptionTimeModel(BaseModel):

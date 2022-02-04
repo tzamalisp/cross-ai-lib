@@ -2,6 +2,8 @@ from scipy.signal import butter, filtfilt, stft, sosfilt, sosfiltfilt
 from scipy.ndimage import gaussian_filter1d, median_filter
 from processing.signal import filters
 
+from crossai.ts.processing.signal.filters import butterworth_filter, apply_gaussian_filter
+
 
 def calc_sensor_magnitude(df, sensor=None):
     """

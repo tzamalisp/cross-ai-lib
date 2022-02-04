@@ -600,7 +600,7 @@ class SegmentsCollectionIterator:
         raise StopIteration
 
 
-class RollingWindowHandler:
+class SlidingWindowHandler:
     def __init__(self, data, overlap, window_size):
         """
 
@@ -969,7 +969,7 @@ def apply_sw(accepted_dfs, rw_size, overlap_percent, labels=None):
 
     logging.debug("Transformation with Rolling Window and unification of all data to one ndarray.")
     for ind, df in tqdm(enumerate(accepted_dfs)):
-        rwh = RollingWindowHandler(df.values, overlap_percent, rw_size)
+        rwh = SlidingWindowHandler(df.values, overlap_percent, rw_size)
         segments_array = rwh.segments_ndarray
         segments_array_length = segments_array.shape[0]
         dataset_X.append(segments_array)
@@ -1047,3 +1047,4 @@ def generate_spectrograms_dataset(config, dataset_X, dataset_y=None, save=True, 
             instance_spectro_image.save(instance_image_save_path)
     spectrogram_dataset = np.vstack(spectrogram_dataset)
     return spectrogram_dataset
+
