@@ -17,7 +17,7 @@ def interpolate_matrix(matrix, length, axis=0):
         matrix_interp (numpy.ndarray): The matrix with the interpolated values.
     """
     x = np.arange(0, matrix.shape[0])
-    fit = interpolate.interp1d(x, matrix, axis=axis)
+    fit = interpolate.interp1d(x, matrix, axis=axis, kind="cubic")
     print(length)
     matrix_interp = fit(np.linspace(0, matrix.shape[0] - 1, length))
 

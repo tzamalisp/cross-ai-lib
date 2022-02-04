@@ -6,7 +6,7 @@ from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Bidirectional, Conv1D, ConvLSTM2D, Dense, Dropout, Flatten, LeakyReLU, LSTM, \
     MaxPooling1D, TimeDistributed
-from models.nn.base_model import BaseModel
+from crossai.models.nn1d.base_model import BaseModel
 
 
 class CNN1DLSTM(BaseModel):

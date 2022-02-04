@@ -1,7 +1,7 @@
 import numpy as np
 import logging
 from tensorflow import keras
-from models.nn.base_model import BaseModel
+from crossai.models.nn1d.base_model import BaseModel
 from tensorflow.keras.layers import Input, Dense, Conv1D, Add
 from tensorflow.keras.layers import SeparableConv1D
 from tensorflow.keras.layers import BatchNormalization
@@ -14,7 +14,7 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.constraints import MaxNorm
 import tensorflow_addons as tfa
-from models.nn.base_model import DropoutLayer
+from crossai.models.nn1d.base_model import DropoutLayer
 
 
 class XceptionTimeModel(BaseModel):

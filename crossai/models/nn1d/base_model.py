@@ -14,12 +14,9 @@ from tensorflow.keras.layers import Layer
 from tensorboard.plugins.hparams import api as hp
 from training.models_performance import plot_fit_history
 from sklearn.metrics import classification_report, confusion_matrix
-from models.nn.callbacks_learning_rate import callback_lr_scheduler
-from training.project_training_variables import nn_default_parameters
-from training.models_performance import plot_model_performance,\
-    plot_confusion_matrix
-from configuration_functions.project_configuration_variables import\
-    project_configuration
+from crossai.ai.callbacks_learning_rate import callback_lr_scheduler
+from crossai.models.models_perfomance_utils import nn_default_parameters
+from crossai.models.models_perfomance_utils import plot_confusion_matrix
 from tensorflow.keras.optimizers.schedules import \
     ExponentialDecay, PiecewiseConstantDecay
 

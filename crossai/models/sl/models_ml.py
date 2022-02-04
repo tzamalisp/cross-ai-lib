@@ -15,8 +15,6 @@ from sklearn.metrics import classification_report, accuracy_score,\
 from datetime import datetime
 from bunch import Bunch
 import logging
-from configuration_functions.project_configuration_variables import \
-    project_configuration
 
 
 class MLClassifier:

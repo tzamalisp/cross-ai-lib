@@ -1,7 +1,7 @@
 import numpy as np
 from tensorflow import keras
 import logging
-from models.nn.base_model import BaseModel
+from crossai.models.nn1d.base_model import BaseModel
 
 
 class BiLSTM(BaseModel):
