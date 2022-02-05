@@ -15,42 +15,52 @@ from tensorboard.plugins.hparams import api as hp
 from training.models_performance import plot_fit_history
 from sklearn.metrics import classification_report, confusion_matrix
 from crossai.ai.callbacks_learning_rate import callback_lr_scheduler
-from crossai.models.models_perfomance_utils import nn_default_parameters
 from crossai.models.models_perfomance_utils import plot_confusion_matrix
 from tensorflow.keras.optimizers.schedules import \
     ExponentialDecay, PiecewiseConstantDecay
 
+from crossai.ai.model_compile import get_lr_metric, learning_rate_scheduler
 
 lr_schedule_list = ["tf_exponential", "tf_piecewise"]
 
 
 class BaseModel:
-    def __init__(self, config, model_name=None):
+    def __init__(self, optimizer='adam', adam_epsilon=1e-7,
+                 opt_schedule=None, learning_rate=None, epochs=0,
+                 batch_size=None, nn_metrics=["accuracy"],
+                 nn_loss_function=["sparse_categorical_crossentropy"],
+                 number_of_classes=1, dataset_shape=None,
+                 path_to_save_model=None,
+                 model_name=None):
         """
-        Constructor to initialize the model's architecture parameters.
+
         Args:
-            config: the JSON configuration.
-            model_name (str or None, optional): The model name. If not defined,
-            current datetime is used.
+            optimizer (str): The optimization algorithm to be used. Default 'adam'.
+            adam_epsilon (float): In 1e-7 format. Default 1e-7.
+            opt_schedule (str): Learning rate scheduler. Examples: "tf_exponential", "tf_piecewise"
+            learning_rate (float): The learning rate. Example: 0.001
+            epochs (int): The number of epochs.
+            batch_size (int): The size of the batch.
+            nn_metrics (list of str): The metrics that will be used.  Example: ["accuracy"]
+            nn_loss_function (list of str): The loss functions that will be used. Example: ["sparse_categorical_crossentropy"]
+            number_of_classes (int): The number of classes > 1. Default set to 1.
+            dataset_shape:
+            path_to_save_model (str): The path to save the model.
+            model_name (str): Custom name of the model or else defaulted to datetime that is created.
         """
         self.model_name = datetime.now().strftime(
             "%Y-%m-%d-%H-%M") if model_name is None else model_name
 
-        self.path_to_save_model = Path(
-            project_configuration["project_store_path"]).joinpath("tf")
+        self.path_to_save_model = path_to_save_model
 
         if not self.path_to_save_model.exists():
             logging.debug(
-                "Creating directory for saving model.".format(
-                    self.path_to_save_model.relative_to(
-                        project_configuration["project_store_path"])))
+                "Creating directory for saving model to: ".format(self.path_to_save_model))
             self.path_to_save_model.mkdir(parents=True, exist_ok=True)
 
         set_name = self.model_name + ".tf"
         self.path_to_save_model = self.path_to_save_model.joinpath(set_name)
         self.path_to_save_model.mkdir(parents=True, exist_ok=True)
-        self.config = config
-        self.config["path_to_save_model"] = self.path_to_save_model
 
         self.exports_common_name = None
 
@@ -62,24 +72,19 @@ class BaseModel:
         logging.debug(
             "Path to TF logs (usage with tensorboard) : {}".format(
                 self.path_to_tf_logs))
-
-        self.optimizer = config.get("optimizer", None)
-        self.adam_epsilon = config.get("adam_epsilon", 1e-7)
-        self.opt_schedule = config.get("opt_schedule", None)
-        self.learning_rate = config.get("learning_rate", None)
-        self.epochs = config.get("epochs", 0)
-        self.batch_size = config.get("batch_size", None)
-        self.nn_metrics = nn_default_parameters["nn_metrics"] \
-            if "nn_metrics" not in config.keys() \
-            else config["nn_metrics"]
-        self.nn_loss_function = nn_default_parameters["nn_loss_function"]\
-            if "nn_loss_function" not in config.keys() \
-            else config["nn_loss_function"]
+        self.optimizer = optimizer
+        self.adam_epsilon = adam_epsilon
+        self.opt_schedule = opt_schedule
+        self.learning_rate = learning_rate
+        self.epochs = epochs
+        self.batch_size = batch_size
+        self.nn_metrics = nn_metrics
+        self.nn_loss_function = nn_loss_function
+        self.number_of_classes = number_of_classes
+        self.dataset_shape = dataset_shape
 
         # Initialize a model
         self.model = None
-        self.number_of_classes = config.get("number_of_classes", 1)
-        self.dataset_shape = config.get("dataset_shape", None)
         self.iters_per_epoch = None
         # Default predictions behaviour. By default the MonteCarlo predictions
         # is deactivated.
@@ -105,20 +110,44 @@ class BaseModel:
         # Implement this method in the inherited class to calculate the filter size.
         raise NotImplementedError
 
-    def callbacks_init(self):
+    def callbacks_init(self, activate_es=True, es_monitor="val_loss",
+                       es_mode="min", es_patience=0, es_delta=0,
+                       es_baseline=None, activate_checkpoints=True,
+                       chkpnt_monitor="val_loss", chkpnt_mode="min",
+                       chkpnt_save_freq=20,
+                       activate_lr_scheduler=True, lr_mode="performance",
+                       activate_tensorboard=True):
         """
+
+        Args:
+            activate_es (bool): Whether to activate or not callbacks.
+            es_monitor (str):  Quantinty to be monitored. Example: "val_los"
+            es_mode (str): One of {"auto", "min", "max"}. In min mode, training will stop when the quantity monitored
+             has stopped decreasing; in "max" mode it will stop when the quantity monitored has stopped increasing; in
+             "auto" mode, the direction is automatically inferred from the name of the monitored quantity.
+            es_patience (int): Number of epochs with no improvement after which training will be stopped.
+            es_delta (int): Minimum change in the monitored quantity to qualify as an improvement, i.e. an absolute
+            change of less than min_delta, will count as no improvement.
+            es_baseline (float): Baseline value for the monitored quantity. Training will stop if the model doesn't show
+             improvement over the baseline.
+            activate_checkpoints (bool): Whether to activate model checkpoints or not.
+            chkpnt_monitor (str): Quantinty to be monitored. Example: "val_los".
+            chkpnt_mode (str): The mode of the checkpoint. Example: "min".
+            chkpnt_save_freq (int): The checkpoint frequency in epochs. Default 20.
+            activate_lr_scheduler (bool): Whether to activate a learning rate scheduler or not.
+            lr_mode (str): The mode of the learning rate scheduler. Default: "performance".
+            activate_tensorboard: Whether to activate tesnorboard monitoring or not.
 
         Returns:
 
         """
         callbacks_list = []
-        calbacks_configuration = project_configuration.get("callbacks")
-        if calbacks_configuration["early_stopping"]["active"]:
-            es_monitor = calbacks_configuration["early_stopping"]["monitor"]
-            es_mode = calbacks_configuration["early_stopping"]["mode"]
-            es_patience = calbacks_configuration["early_stopping"]["patience"]
-            es_delta = calbacks_configuration["early_stopping"].get("min_delta", 0)
-            es_baseline = calbacks_configuration["early_stopping"].get("baseline", None)
+        if activate_es:
+            es_monitor = es_monitor
+            es_mode = es_mode
+            es_patience = es_patience
+            es_delta = es_delta
+            es_baseline = es_baseline
             callback_early_stopping = keras.callbacks.EarlyStopping(monitor=es_monitor,
                                                                     mode=es_mode,
                                                                     patience=es_patience,
@@ -128,14 +157,13 @@ class BaseModel:
                                                                     else 0,
                                                                     restore_best_weights=True)
             callbacks_list.append(callback_early_stopping)
-        if calbacks_configuration["checkpoint"]["active"]:
-            checkpoint_monitor = calbacks_configuration["checkpoint"]["monitor"]
-            checkpoint_mode = calbacks_configuration["checkpoint"]["mode"]
-            checkpoint_filepath = Path(project_configuration["project_store_path"]). \
-                joinpath("tf").joinpath("{}.tf".format(self.model_name))
+        if activate_checkpoints:
+            checkpoint_monitor = chkpnt_monitor
+            checkpoint_mode = chkpnt_mode
+            checkpoint_filepath = self.path_to_save_model.joinpath("reports")
             if not checkpoint_filepath.is_dir():
                 checkpoint_filepath.mkdir(parents=True, exist_ok=True)
-            save_freq = calbacks_configuration["checkpoint"]["save_freq"]
+            save_freq = chkpnt_save_freq
             logging.debug("Save freq checkpoint: {}".format(save_freq))
             callback_checkpoint = MyModelCheckpoint(epoch_per_save=save_freq,
                                                     filepath=str(checkpoint_filepath),
@@ -145,26 +173,14 @@ class BaseModel:
                                                     mode=checkpoint_mode
                                                     )
             callbacks_list.append(callback_checkpoint)
-        if calbacks_configuration["lr_scheduler"]["active"]:
-            lr_clb = callback_lr_scheduler(calbacks_configuration["lr_scheduler"]["mode"])
+        if activate_lr_scheduler:
+            lr_clb = callback_lr_scheduler(lr_mode)
             callbacks_list.append(lr_clb)
-        if calbacks_configuration["tensorboard"]["active"]:
+        if activate_tensorboard:
             tensorboard_callback = keras.callbacks.TensorBoard(log_dir=self.path_to_tf_logs)
             callbacks_list.append(tensorboard_callback)
             # hparams_callback = hp.KerasCallback(self.path_to_tf_logs, self.hparams)
         return callbacks_list
-
-    def define_model(self, config=None):
-        """
-        Constructs the model.
-        Args:
-            config: configuration
-
-        Returns:
-
-        """
-        # Implement this method in the inherited class to add layers to the model.
-        raise NotImplementedError
 
     def compile(self, optimizer=None, learning_rate=None, loss=None, nn_metrics=None,
                 adam_epsilon=None, opt_schedule=None):
@@ -272,15 +288,6 @@ class BaseModel:
                                               verbose=verbose,
                                               validation_data=validation_dataset
                                               )
-
-        # if "loss" in self.history.history.keys():
-        #     self.performance_history["loss"] += self.history.history["loss"]
-        # if "val_loss" in self.history.history.keys():
-        #     self.performance_history["val_loss"] += self.history.history["val_loss"]
-        # if "accuracy" in self.history.history.keys():
-        #     self.performance_history["accuracy"] += self.history.history["accuracy"]
-        # if "val_accuracy" in self.history.history.keys():
-        #     self.performance_history["val_accuracy"] += self.history.history["val_accuracy"]
 
     def evaluate(self, test_X, test_y, **kwargs):
         """
@@ -394,7 +401,7 @@ class BaseModel:
 
         """
         if path_to_export is None:
-            path_to_export = Path(project_configuration["project_store_path"]).joinpath("reports")
+            path_to_export = self.path_to_save_model.joinpath("reports")
         path_to_export = path_to_export.joinpath("{}_model.png".format(self.model_name))
         if not path_to_export.parent.is_dir():
             path_to_export.parent.mkdir()
@@ -408,7 +415,7 @@ class BaseModel:
             if metric in self.history.history.keys():
                 if save:
                     set_name = self.exports_common_name + "_{}.png".format(metric)
-                    path_to_save_mp = Path(project_configuration["project_store_path"]).joinpath("reports"). \
+                    path_to_save_mp = self.path_to_save_model.joinpath("reports"). \
                         joinpath(self.exports_common_name).joinpath(set_name)
                 plot_fit_history(self.history, metric, path_to_save=path_to_save_mp if save else None)
 
@@ -424,7 +431,7 @@ class BaseModel:
         if save:
             if path_to_save is None:
                 set_name = self.exports_common_name + "_cm_test-data" + ".png"
-                path_to_save_cm = Path(project_configuration["project_store_path"]).joinpath("reports"). \
+                path_to_save_cm = self.path_to_save_model.joinpath("reports"). \
                     joinpath(self.exports_common_name).joinpath(set_name)
             else:
                 path_to_save_cm = path_to_save
@@ -473,6 +480,14 @@ class BaseModel:
     #         tf.summary.scalar("eval_accuracy", accuracy, step=1)
 
     def set_mc_predictions(self, mc_iterations=100):
+        """
+        Sets the mc iterations.
+        Args:
+            mc_iterations (int): Number of the mc iterations.
+
+        Returns:
+            None
+        """
         self.mcdropout = True
         self.mc_iterations = mc_iterations
         # self.model = keras.models.Sequential([
@@ -481,12 +496,13 @@ class BaseModel:
         # )
 
     def unset_mc_predictions(self):
+        """
+        Unsets the mc iterations
+        Returns:
+            None
+        """
         self.mcdropout = False
         self.mc_iterations = 1
-        # self.model = keras.models.Sequential([
-        #     keras.layers.Dropout(layer.rate) if isinstance(MCDropout) else layer
-        #     for layer in self.model.layers]
-        # )
 
 
 class MyModelCheckpoint(keras.callbacks.ModelCheckpoint):
@@ -575,45 +591,3 @@ def dropout_layer(input_tensor, drp_on=True, drp_rate=0.1, spatial=True):
 
     return x
 
-
-def learning_rate_scheduler(opt_schedule, exp_initial_lr=0.001, exp_decay_stp=20, exp_decay_rt=0.1,
-                            pcw_boundaries=[5, 15], pcw_values=[0.01, 0.005, 0.001]):
-    """
-
-    Args:
-        opt_schedule:
-        exp_initial_lr:
-        exp_decay_stp:
-        exp_decay_rt:
-        pcw_boundaries: (list)
-        pcw_values: (list)
-
-    Returns:
-
-    """
-    if opt_schedule == "tf_exponential":
-        learning_rate = ExponentialDecay(initial_learning_rate=exp_initial_lr,
-                                         decay_steps=exp_decay_stp,
-                                         decay_rate=exp_decay_rt)
-    elif opt_schedule == "tf_piecewise":
-        learning_rate = PiecewiseConstantDecay(boundaries=pcw_boundaries,
-                                               values=pcw_values)
-    else:
-        print("Not valid learning rate scheduler value/s is/are selected.")
-        raise Exception
-
-    return learning_rate
-
-
-def get_lr_metric(optimizer):
-    """
-
-    Args:
-        optimizer: The optimizer object.
-
-    Returns:
-        The learning rate value.
-    """
-    def lr(y_true, y_pred):
-        return optimizer.lr
-    return lr

@@ -18,29 +18,41 @@ from crossai.models.nn1d.base_model import DropoutLayer
 
 
 class XceptionTimeModel(BaseModel):
-    def define_model(self, config=None):
+    def define_model(self, number_of_classes=1, train_data_shape=None,
+                     xception_adaptive_size=50, xcpetion_adapt_ws_divide=4,
+                     n_filters=16, kernel_initialize="he_uniform",
+                     kernel_regularize=1e-5, kernel_constraint=3,
+                     drp_input=0, drp_mid=0, drp_high=0):
         """
 
         Args:
-            config:
+            number_of_classes (int): The number of classes. Default: 1.
+            train_data_shape:
+            xception_adaptive_size (int): The adaptive size. Default: 50.
+            xcpetion_adapt_ws_divide (int): The number that will divide the adaptive size. Default 4.
+            n_filters (int): The number of filters. Default: 16
+            kernel_initialize (str): The variance scaling initializer. Default: "he_uniform".
+            kernel_regularize (float or str): Can be float or str in 1e-5 format.
+            Regularizer to apply a penalty on the layer's kernel.
+            kernel_constraint (int): The constraint of the value of the incoming weights. Default 3.
+            drp_input (float): Fraction of the input units to drop in the input dropout layer. Default: 0.
+            drp_mid (float): Fraction of the input units to drop in the mid dropout layer. Default: 0.
+            drp_high (float): Fraction of the input units to drop in the last dropout layer. Default: 0.
 
         Returns:
 
         """
-        number_of_classes = config.get("number_of_classes", self.number_of_classes)
-        train_data_shape = config.get("dataset_shape", self.dataset_shape)
-        xception_adaptive_size = config.get("adaptive_size", 50)
-        xception_adapt_ws_divide = config.get("adapt_ws_divide", 4)
-        n_filters = config.get("n_filters", 16)
-        kernel_initialize = config.get("kernel_initialize", "he_uniform")
-        kernel_regularize = config.get("kernel_regularize", 1e-5)
-        if isinstance(kernel_regularize, str):
-            kernel_regularize = float(kernel_regularize.replace("−", "-"))
-            config.update({"kernel_regularize": kernel_regularize})
-        kernel_constraint = config.get("kernel_constraint", 3)
-        drp_input = config.get("drp_input", 0)
-        drp_mid = config.get("drp_mid", 0)
-        drp_high = config.get("drp_high", 0)
+        number_of_classes = number_of_classes
+        train_data_shape = train_data_shape
+        xception_adaptive_size = xception_adaptive_size
+        xception_adapt_ws_divide = xcpetion_adapt_ws_divide
+        n_filters = n_filters
+        kernel_initialize = kernel_initialize
+        kernel_regularize = kernel_regularize
+        kernel_constraint = kernel_constraint
+        drp_input = drp_input
+        drp_mid = drp_mid
+        drp_high = drp_high
         spatial = False
         activation = "softmax"
 
