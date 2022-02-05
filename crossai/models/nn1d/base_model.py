@@ -44,7 +44,7 @@ class BaseModel:
             nn_metrics (list of str): The metrics that will be used.  Example: ["accuracy"]
             nn_loss_function (list of str): The loss functions that will be used. Example: ["sparse_categorical_crossentropy"]
             number_of_classes (int): The number of classes > 1. Default set to 1.
-            dataset_shape:
+            dataset_shape (tuple (int,int)): The shape of the dataset.
             path_to_save_model (str): The path to save the model.
             model_name (str): Custom name of the model or else defaulted to datetime that is created.
         """

@@ -63,6 +63,12 @@ class XceptionTimeModel(BaseModel):
                                   spatial, activation)
 
     def load_model(self, path_to_saved_model=None):
+        """
+        Loads an xception time model from local storage and compiles it.
+        Args:
+            path_to_saved_model (str): Path to the saved model.
+
+        """
         if path_to_saved_model is None:
             path_to_saved_model = self.path_to_save_model
         logging.debug("Loading model from {} \n".format(path_to_saved_model))
