@@ -17,25 +17,50 @@ from crossai.models.nn1d.base_model import dropout_layer
 
 
 class InceptionTimeModel(BaseModel):
-    def define_model(self, config=None):
+    def define_model(self, number_of_classes=1,
+                     train_data_shape=None,
+                     nb_filters=32, use_residual=True, use_bottleneck=True,
+                     depth=6, kernel_size=41, bottleneck_size=32, drp_input=0,
+                     drp_high=0, kernel_initialize="he_uniform",
+                     kernel_regularize=4e-5,
+                     kernel_constraint=3):
+        """
 
-        number_of_classes = config.get("number_of_classes", self.number_of_classes)
-        train_data_shape = config.get("dataset_shape", self.dataset_shape)
-        nb_filters = config.get("nb_filters", 32)
-        use_residual = config.get("use_residual", True)
-        use_bottleneck = config.get("use_bottleneck", True)
-        depth = config.get("depth", 6)
-        kernel_size = config.get("kernel_size", 41)
-        bottleneck_size = config.get("bottleneck_size", 32)
-        drp_input = config.get("drp_input", 0)
-        drp_high = config.get("drp_high", 0)
+        Args:
+            number_of_classes (int): The number of classes (>1). Default set to 1.
+            train_data_shape (tuple (int,int)): The train data shape.
+            nb_filters (int): The number of nb filters.
+            use_residual (bool): Whether to use a residual block or not.
+            use_bottleneck (bool): Whether to use a bottleneck layer or not.
+            depth (int): The depth of the network.
+            kernel_size (int): The kernel size of the network.
+            bottleneck_size (int): The number of output filters in the convolution.
+            drp_input (float): Range 0-1.
+            drp_high (float): Range 0-1.
+            kernel_initialize (str): The variance scaling initializer. Default: "he_uniform".
+            kernel_regularize (float or str): Can be float or str in 1e-5 format.
+            Regularizer to apply a penalty on the layer's kernel.
+            kernel_constraint (int): The constraint of the value of the incoming weights. Default 3.
+
+        Returns:
+
+        """
+        number_of_classes = number_of_classes
+        train_data_shape = train_data_shape
+        nb_filters = nb_filters
+        use_residual = use_residual
+        use_bottleneck = use_bottleneck
+        depth = depth
+        kernel_size = kernel_size
+        bottleneck_size = bottleneck_size
+        drp_input = drp_input
+        drp_high = drp_high
         spatial = False,
-        kernel_initialize = config.get("kernel_initialize", "he_uniform")
-        kernel_regularize = config.get("kernel_regularize", 4e-5)
+        kernel_initialize = kernel_initialize
+        kernel_regularize = kernel_regularize
         if isinstance(kernel_regularize, str):
             kernel_regularize = float(kernel_regularize.replace("−", "-"))
-            config.update({"kernel_regularize": kernel_regularize})
-        kernel_constraint = config.get("kernel_constraint", 3)
+        kernel_constraint = kernel_constraint
         activation = "softmax"
 
         kernel_size = kernel_size - 1

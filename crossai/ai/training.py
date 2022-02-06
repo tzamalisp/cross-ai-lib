@@ -5,7 +5,7 @@ from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 # sklearn imports
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 # cross ai imports
-from crossai.models.nn1d.model_xceptiontime import xception_time
+from crossai.models.nn1d.xceptiontime import xception_time
 from crossai.models.nn1d.nn_inception_time_func import inception_time
 from crossai.models.nn1d.nn_bi_lstm import bi_lstm
 from crossai.ai.callbacks_functions import callbacks_list
