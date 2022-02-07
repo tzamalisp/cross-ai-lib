@@ -6,6 +6,7 @@ from crossai.models.nn1d.base_model import BaseModel
 
 from tensorflow.keras.layers import BatchNormalization, Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 
+
 class CNN2D(BaseModel):
 
     def define_model(self, config=None):

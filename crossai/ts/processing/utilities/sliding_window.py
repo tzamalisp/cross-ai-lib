@@ -10,6 +10,38 @@ from tqdm import tqdm
 from processing.motion.plot_motion_sensors_data import plot_spectrogram
 from processing.signal.features_extraction import calculate_rms
 from utilities.visualizations import fig2img, merge_pil_images
+from crossai.ts.processing.preprocessing import SegmentsCollection
+from crossai.ts.processing.preprocessing import Segment
+
+
+def get_overlap(a, b, percent=True):
+    """
+        Function to calculate the overlap between two consecutive segments.
+    Args:
+        a,b : list in form [start, end] or Segment
+
+    Returns:
+        Percentage of overlap (float) if percent = True.
+             It is calculated as a percentage of the overall space from a to b.
+            Otherwise, the number of overlapping samples (int).
+
+    """
+    if isinstance(a, Segment):
+        a = [a.start, a.stop]
+    if isinstance(b, Segment):
+        b = [b.start, b.stop]
+    overlap = max(0, min(a[1], b[1]) - max(a[0], b[0]))
+    if overlap > 1:
+        max_value = b[1]
+        min_value = a[0]
+        length = len(list(range(min_value, max_value)))
+        if percent:
+            return overlap * 100 / length
+        else:
+            return overlap
+    else:
+        return 0.0
+
 
 class SlidingWindowHandler:
     def __init__(self, data, overlap, window_size):
@@ -127,13 +159,13 @@ class SlidingWindowHandler:
         return np.array(labels)
 
 
-def apply_sw(accepted_dfs, rw_size, overlap_percent, labels=None):
+def apply_sw(accepted_dfs, sw_size, overlap_percent, labels=None):
     """
     Perform rolling window segmentation on a given 2-D dataframe. If provided, the labels
     are also produced for each rolling window segment.
     Args:
         accepted_dfs: (list) A list of pandas dataframes that correspond to the downloaded data.
-        rw_size (int): samples
+        sw_size (int): samples
         overlap_percent (int): percentage
         labels: (optional) if given, for each rolling window segment the labels are produced.
 
@@ -141,7 +173,7 @@ def apply_sw(accepted_dfs, rw_size, overlap_percent, labels=None):
         dataset_X: numpy nd array where each row (axis 0) corresponds to a rolling window segment.
         dataset_y (optional): numpy axis with shape 1D which holds the index of the label of each of the dataset
                     segment.
-        rw_size: The calculated rolling window size in accordance with the percentage (given from configuration)
+        sw_size: The calculated rolling window size in accordance with the percentage (given from configuration)
                     and the calculated average gestures length from the dataset.
     """
 
@@ -150,7 +182,7 @@ def apply_sw(accepted_dfs, rw_size, overlap_percent, labels=None):
 
     logging.debug("Transformation with Rolling Window and unification of all data to one ndarray.")
     for ind, df in tqdm(enumerate(accepted_dfs)):
-        rwh = SlidingWindowHandler(df.values, overlap_percent, rw_size)
+        rwh = SlidingWindowHandler(df.values, overlap_percent, sw_size)
         segments_array = rwh.segments_ndarray
         segments_array_length = segments_array.shape[0]
         dataset_X.append(segments_array)

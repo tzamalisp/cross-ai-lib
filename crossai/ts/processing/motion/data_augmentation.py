@@ -24,8 +24,8 @@ def augment_dataset(dfs_list, dfs_labels, aug_methods, aug_parameters):
     Takes a dataset as input and produces a dataset that consists of the augmented instances
         of the initial one.
     Args:
-        dfs_list (list):
-        dfs_labels (list):
+        dfs_list (list): A list with pandas.Dataframes corresponding to the sensor data.
+        dfs_labels (list): A list with the labels for each Dataframe of the dfs_list.
         aug_methods (list): A list with the selected augmentation methods. When an
             element is a list, it means that these methods are combined to produce
             one new instance.
