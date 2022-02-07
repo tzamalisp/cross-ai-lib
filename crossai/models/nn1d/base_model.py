@@ -590,4 +590,3 @@ def dropout_layer(input_tensor, drp_on=True, drp_rate=0.1, spatial=True):
         x = input_tensor
 
     return x
-

@@ -143,14 +143,6 @@ def calculate_signal_duration(samples, sampling_frequency):
     return samples / sampling_frequency
 
 
-def add_preprocessing_axes(df):
-    # TODO add documentation
-
-    logging.debug("Adding preprocessing columns")
-    calc_acc_magnitude(df)
-    calc_gyr_magnitude(df)
-
-
 def append_instances(dfs_list):
     """
     Creates a new dataframe with the acc and gyroscope axes of all the

@@ -579,27 +579,6 @@ class SegmentsCollection:
         plt.title('Resulting segments')
 
 
-class SegmentsCollectionIterator:
-    """
-    Iterator class for SegmentsCollection, according to guide
-    https://thispointer.com/python-how-to-make-a-class-iterable-create-iterator-class-for-it/
-    """
-    def __init__(self, segment_collection):
-        self._segment_collection = segment_collection
-        self._index = 0
-
-    def __next__(self):
-        """
-        Returns the next value from team object's lists.
-        """
-        if self._index < len(self._segment_collection._segments):
-            result = self._segment_collection._segments[self._index]
-            self._index += 1
-            return result
-        # End of Iteration
-        raise StopIteration
-
-
 def restore_signals_from_rw(data, overlap_percent):
     """
     Given a matrix with shape (<N> x <window_size> x <signals' number>) recreate a timeseries ndarray with the original
@@ -649,62 +628,6 @@ def get_overlap(a, b, percent=True):
             return overlap
     else:
         return 0.0
-
-
-def pad_ndarray(array, new_length, mode="expand", pad_to="both"):
-    """
-
-    Args:
-        array:
-        new_length:
-        mode:
-        pad_to:
-
-    Returns:
-    # TODO take into consideration the case to pad axis 1.
-    """
-    fill_diff = new_length - array.shape[0]
-    if mode == "expand":
-        top_pad = array[-1]
-        bottom_pad = array[0]
-    else:
-        top_pad = 0
-        bottom_pad = 0
-
-    # Cases of padding - pad_to the right (only top)
-    if pad_to in "top":
-        padding = top_pad * np.ones((fill_diff, array.shape[1]))
-        print("created padding shape : ", padding.shape)
-        array = np.vstack((array, padding))
-    elif pad_to in "bottom":
-        padding = bottom_pad * np.ones((fill_diff, array.shape[1]))
-        array = np.vstack((padding, array))
-    else:
-        if fill_diff > 0:
-            if fill_diff % 2 == 0:
-                rows_top = fill_diff // 2
-                rows_bottom = fill_diff // 2
-            else:
-                rows_top = int(np.ceil(fill_diff / 2))
-                rows_bottom = int(np.floor(fill_diff / 2))
-
-            if rows_top > 0:
-                padding = top_pad * np.ones((fill_diff, array.shape[1]))
-                array = np.vstack((array, padding))
-            if rows_bottom > 0:
-                padding = bottom_pad * np.ones((fill_diff, array.shape[1]))
-                array = np.vstack((padding, array))
-
-        else:
-            fill_diff = - fill_diff
-            if fill_diff % 2 == 0:
-                rows_top = fill_diff // 2
-                rows_bottom = fill_diff // 2
-            else:
-                rows_top = int(np.ceil(fill_diff / 2))
-                rows_bottom = int(np.floor(fill_diff / 2))
-            array = array[rows_top: (array.shape[0] - rows_bottom)]
-    return array
 
 
 def generate_instance_spectrogram(plot_params, stft_params, data):
@@ -780,16 +703,6 @@ def generate_instance_spectrogram(plot_params, stft_params, data):
             # close the plot
             plt.close()
 
-        # reshape in order to stack the numpy arrays (images) properly
-        # buffer = np.reshape(buffer, (h, w, d))
-        #         print("BUFFER RESHAPED SHAPE:", buffer.shape)
-        # Save the result of STFT to a list
-
-    # Stack vertically the numpy arrays from each axis spectrogram
-    # buffer_comb_vertical = np.vstack(tuple(axes_stft_list))
-
-    # Instead of stacking STFT in one 2d matrix, the axes STFT are returned in one `np.array`. Hence each instance would
-    # have shape : FrequencyBins x Samples
     axes_stft_list = np.array(axes_stft_list)
 
     instance_spectro_array = np.vstack([i[np.newaxis, :, :] for i in axes_stft_list])
@@ -828,49 +741,6 @@ def calculate_sampling_frequency(df):
         logging.warning("Too short dataframe. Duration less than seconds to calculate sampling frequency.")
         f_s_calculated = 0.0
     return f_s_calculated
-
-
-def apply_sw(accepted_dfs, rw_size, overlap_percent, labels=None):
-    """
-    Perform rolling window segmentation on a given 2-D dataframe. If provided, the labels
-    are also produced for each rolling window segment.
-    Args:
-        accepted_dfs: (list) A list of pandas dataframes that correspond to the downloaded data.
-        rw_size (int): samples
-        overlap_percent (int): percentage
-        labels: (optional) if given, for each rolling window segment the labels are produced.
-
-    Returns:
-        dataset_X: numpy nd array where each row (axis 0) corresponds to a rolling window segment.
-        dataset_y (optional): numpy axis with shape 1D which holds the index of the label of each of the dataset
-                    segment.
-        rw_size: The calculated rolling window size in accordance with the percentage (given from configuration)
-                    and the calculated average gestures length from the dataset.
-    """
-
-    dataset_X = list()
-    dataset_y = list()
-
-    logging.debug("Transformation with Rolling Window and unification of all data to one ndarray.")
-    for ind, df in tqdm(enumerate(accepted_dfs)):
-        rwh = SlidingWindowHandler(df.values, overlap_percent, rw_size)
-        segments_array = rwh.segments_ndarray
-        segments_array_length = segments_array.shape[0]
-        dataset_X.append(segments_array)
-        if labels is not None:
-            if isinstance(labels, np.ndarray) or isinstance(labels, list):
-                rwh.label_segments(labels[ind])
-            else:
-                rwh.label_segments(labels)
-            dataset_y.append(rwh.get_labels())
-    logging.debug("concatenating all segments of dataset_X")
-    dataset_X = np.vstack(dataset_X)
-    if dataset_y:
-        dataset_y = np.hstack(dataset_y)
-    logging.info("Dataset created with dimensions {}".format(dataset_X.shape))
-    if labels is not None:
-        logging.info("Labels created with dimensions {}".format(dataset_y.shape))
-    return dataset_X, dataset_y
 
 
 def generate_spectrograms_dataset(config, dataset_X, dataset_y=None, save=True, project_dir=None):
