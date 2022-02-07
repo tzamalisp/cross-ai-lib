@@ -14,12 +14,10 @@ from tensorflow.keras.layers import Layer
 from tensorboard.plugins.hparams import api as hp
 from training.models_performance import plot_fit_history
 from sklearn.metrics import classification_report, confusion_matrix
-from crossai.ai.callbacks_learning_rate import callback_lr_scheduler
+from crossai.ai.learning_rate import callback_lr_scheduler, learning_rate_scheduler, get_lr_metric
 from crossai.models.models_perfomance_utils import plot_confusion_matrix
 from tensorflow.keras.optimizers.schedules import \
     ExponentialDecay, PiecewiseConstantDecay
-
-from crossai.ai.model_compile import get_lr_metric, learning_rate_scheduler
 
 lr_schedule_list = ["tf_exponential", "tf_piecewise"]
 
