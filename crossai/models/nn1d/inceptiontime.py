@@ -109,6 +109,18 @@ class InceptionTimeModel(BaseModel):
 
 
 def _shortcut_layer(input_tensor, out_tensor, kernel_initialize, kernel_regularize, kernel_constraint):
+    """
+
+    Args:
+        input_tensor:
+        out_tensor:
+        kernel_initialize:
+        kernel_regularize:
+        kernel_constraint:
+
+    Returns:
+
+    """
     print("shortcut filters:", out_tensor.shape[-1])
     shortcut_y = Conv1D(filters=int(out_tensor.shape[-1]), kernel_size=1,
                         padding="same",
@@ -126,6 +138,23 @@ def _shortcut_layer(input_tensor, out_tensor, kernel_initialize, kernel_regulari
 
 def _inception_module(input_tensor, use_bottleneck, bottleneck_size, activation, nb_filters, kernel_size,
                       kernel_initialize, kernel_regularize, kernel_constraint, stride=1):
+    """
+
+    Args:
+        input_tensor:
+        use_bottleneck:
+        bottleneck_size:
+        activation:
+        nb_filters:
+        kernel_size:
+        kernel_initialize:
+        kernel_regularize:
+        kernel_constraint:
+        stride:
+
+    Returns:
+
+    """
     if use_bottleneck and int(input_tensor.shape[-1]) > 1:
         input_inception = Conv1D(filters=bottleneck_size, kernel_size=1,
                                  padding="same", activation="linear",
