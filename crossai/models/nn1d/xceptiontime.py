@@ -1,7 +1,6 @@
 import numpy as np
 import logging
 from tensorflow import keras
-from crossai.models.nn1d.base_model import BaseModel
 from tensorflow.keras.layers import Input, Dense, Conv1D, Add
 from tensorflow.keras.layers import SeparableConv1D
 from tensorflow.keras.layers import BatchNormalization
@@ -14,68 +13,7 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.constraints import MaxNorm
 import tensorflow_addons as tfa
-from crossai.models.nn1d.base_model import DropoutLayer
-
-
-class XceptionTimeModel(BaseModel):
-    def define_model(self, number_of_classes=1, train_data_shape=None,
-                     xception_adaptive_size=50, xcpetion_adapt_ws_divide=4,
-                     n_filters=16, kernel_initialize="he_uniform",
-                     kernel_regularize=1e-5, kernel_constraint=3,
-                     drp_input=0, drp_mid=0, drp_high=0):
-        """
-
-        Args:
-            number_of_classes (int): The number of classes. Default: 1.
-            train_data_shape:
-            xception_adaptive_size (int): The adaptive size. Default: 50.
-            xcpetion_adapt_ws_divide (int): The number that will divide the adaptive size. Default 4.
-            n_filters (int): The number of filters. Default: 16
-            kernel_initialize (str): The variance scaling initializer. Default: "he_uniform".
-            kernel_regularize (float or str): Can be float or str in 1e-5 format.
-            Regularizer to apply a penalty on the layer's kernel.
-            kernel_constraint (int): The constraint of the value of the incoming weights. Default 3.
-            drp_input (float): Fraction of the input units to drop in the input dropout layer. Default: 0.
-            drp_mid (float): Fraction of the input units to drop in the mid dropout layer. Default: 0.
-            drp_high (float): Fraction of the input units to drop in the last dropout layer. Default: 0.
-
-        Returns:
-
-        """
-        number_of_classes = number_of_classes
-        train_data_shape = train_data_shape
-        xception_adaptive_size = xception_adaptive_size
-        xception_adapt_ws_divide = xcpetion_adapt_ws_divide
-        n_filters = n_filters
-        kernel_initialize = kernel_initialize
-        kernel_regularize = kernel_regularize
-        kernel_constraint = kernel_constraint
-        drp_input = drp_input
-        drp_mid = drp_mid
-        drp_high = drp_high
-        spatial = False
-        activation = "softmax"
-
-        self.model = XceptionTime(train_data_shape, number_of_classes, xception_adaptive_size,
-                                  xception_adapt_ws_divide,
-                                  n_filters, kernel_initialize, kernel_regularize,
-                                  kernel_constraint, drp_input, drp_mid, drp_high,
-                                  spatial, activation)
-
-    def load_model(self, path_to_saved_model=None):
-        """
-        Loads an xception time model from local storage and compiles it.
-        Args:
-            path_to_saved_model (str): Path to the saved model.
-
-        """
-        if path_to_saved_model is None:
-            path_to_saved_model = self.path_to_save_model
-        logging.debug("Loading model from {} \n".format(path_to_saved_model))
-        self.model = keras.models.load_model(path_to_saved_model, custom_objects={"XceptionTime": XceptionTime},
-                                             compile=False)
-        self.compile()
-        return
+from crossai.models.nn1d.layers import DropoutLayer
 
 
 class XceptionTime(Model):

@@ -1,6 +1,6 @@
 import numpy as np
 import logging
-from crossai.models.nn1d.base_model import BaseModel
+from crossai.models.nn1d.layers import BaseModel
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Conv1D
@@ -13,17 +13,17 @@ from tensorflow.keras.constraints import MaxNorm
 from tensorflow.keras.layers import Concatenate
 from tensorflow.keras.layers import GlobalAveragePooling1D
 from tensorflow.keras.layers import Add
-from crossai.models.nn1d.base_model import dropout_layer
+from crossai.models.nn1d.layers import dropout_layer
 
 
-class InceptionTimeModel(BaseModel):
-    def define_model(self, number_of_classes=1,
-                     train_data_shape=None,
-                     nb_filters=32, use_residual=True, use_bottleneck=True,
-                     depth=6, kernel_size=41, bottleneck_size=32, drp_input=0,
-                     drp_high=0, kernel_initialize="he_uniform",
-                     kernel_regularize=4e-5,
-                     kernel_constraint=3):
+class InceptionTimeModel(Model):
+    def __init__(self, number_of_classes=1,
+                 train_data_shape=None,
+                 nb_filters=32, use_residual=True, use_bottleneck=True,
+                 depth=6, kernel_size=41, bottleneck_size=32, drp_input=0,
+                 drp_high=0, kernel_initialize="he_uniform",
+                 kernel_regularize=4e-5,
+                 kernel_constraint=3):
         """
 
         Args:
