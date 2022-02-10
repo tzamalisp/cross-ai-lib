@@ -19,94 +19,6 @@ from src.processing.timeseries.motion.project_processing_motion_variables\
 from tsaug import AddNoise
 
 
-def augment_dataset(dfs_list, dfs_labels, aug_methods, aug_parameters):
-    """
-    Takes a dataset as input and produces a dataset that consists of the augmented instances
-        of the initial one.
-    Args:
-        dfs_list (list): A list with pandas.Dataframes corresponding to the sensor data.
-        dfs_labels (list): A list with the labels for each Dataframe of the dfs_list.
-        aug_methods (list): A list with the selected augmentation methods. When an
-            element is a list, it means that these methods are combined to produce
-            one new instance.
-        aug_parameters (dict): A dictionary that includes the parameters for each
-            augmentation method under the key `methods`. It also includes a key
-            `repeats` that declares how many instances will be produced by each
-            method.
-
-    Returns:
-        aug_dfs_list (list): Each element is a DataFrame
-        aug_dfs_labels (list): Each element is a number
-    """
-    aug_dfs_list = list()
-    aug_dfs_labels = list()
-    for df_instance, df_label in zip(dfs_list, dfs_labels):
-        aug_instances = augment_instance_to_selections(df_instance, aug_methods, aug_parameters)
-        aug_labels = [df_label for _ in range(0, len(aug_instances))]
-        aug_dfs_list += aug_instances
-        aug_dfs_labels += aug_labels
-    return aug_dfs_list, aug_dfs_labels
-
-
-def augment_instance_to_selections(data, aug_methods, aug_parameters):
-    """
-    Given a data instance, creates several augmented instances of the initial one,
-    according to the given configuration of augmentation methods and the given
-    cofiguration of the selected augmentation methods
-    Args:
-        data:
-        aug_methods (list): A list with the selected augmentation methods. When an
-            element is a list, it means that these methods are combined to produce
-            one new instance.
-        aug_parameters (dict): A dictionary that includes the parameters for each
-            augmentation method under the key `methods`. It also includes a key
-            `repeats` that declares how many instances will be produced by each
-            method.
-
-    Returns:
-        aug_instances (list):
-
-    """
-    repeats = aug_parameters.get("repeats", 1)  # Get the number of repeats per instance.
-    aug_instances = list()
-    for method in aug_methods:
-        for _ in range(0, repeats):
-            aug_instance = None
-            if isinstance(method, list):
-                for method_i in method:
-                    method_params = aug_parameters["methods"].get(method_i, dict())
-                    if aug_instance is None:
-                        aug_instance = augment_instance(data, method_i, method_params)
-                    else:
-                        aug_instance = augment_instance(aug_instance, method_i, method_params)
-            else:
-                method_params = aug_parameters["methods"].get(method, dict())
-                aug_instance = augment_instance(data, method, method_params)
-            aug_instances.append(aug_instance)
-    return aug_instances
-
-
-def augment_instance(data, method, method_params):
-    """
-    Given a data instance, a new data instance is created according to the
-        selected method.
-    Args:
-        data (pandas.DataFrame): An instance of the data, containing axes_acc and/or axes_gyr columns
-        method (str): Descriptive name of the method used. Can be any of the methods defined in augment_methods dict.
-        method_params (dict): Parameters of the augmentation method.
-    Returns:
-
-    """
-    logging.debug("Data augmentation with method {}".format(method))
-    if method in augment_methods.keys():
-        aug_data = augment_methods[method](data, **method_params)
-    else:
-        msg = "Unknown augmentation method {}".format(method)
-        logging.error(msg)
-        raise Exception(msg)
-    return aug_data
-
-
 def aug_addnoise(data, loc_acc=0.0, loc_gyr=0.0, scale_acc=0.2, scale_gyr=15.0, distr="gaussian",
                  kind="additive", per_channel=False, normalize=False):
     """
@@ -284,11 +196,3 @@ def aug_rotation(data, **kwargs):
         aug_data = aug_data_acc
     aug_data_df = pd.DataFrame(aug_data, columns=data_columns)
     return aug_data_df
-
-
-augment_methods = {
-    "add_noise": aug_addnoise,
-    "time_warp": aug_timewarp,
-    "magn_warp": aug_magn_warp,
-    "rotation": aug_rotation
-}
