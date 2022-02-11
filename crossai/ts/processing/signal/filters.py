@@ -1,5 +1,6 @@
 from scipy.signal import butter, filtfilt, stft, sosfilt, sosfiltfilt
 from scipy.ndimage import gaussian_filter1d, median_filter
+import numpy as np
 
 
 def apply_gaussian_filter(df, sigma):
