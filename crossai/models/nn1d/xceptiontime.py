@@ -36,11 +36,6 @@ class XceptionTime(Model):
         self.spatial = spatial
         self.activation = activation
 
-        # divide the number of WS with the adaptive size in case of non-divisible number
-        # if self.train_data_shape[0] % self.xception_adaptive_size != 0:
-        #     xception_adaptive_size = int(self.train_data_shape[0] / self.xception_adapt_ws_divide)
-        # else:
-        #     xception_adaptive_size = self.xception_adaptive_size
         logging.info(self.train_data_shape[0])
         logging.info(self.xception_adapt_ws_divide)
         if self.train_data_shape[0] % self.xception_adapt_ws_divide == 0:
@@ -52,8 +47,6 @@ class XceptionTime(Model):
         print("Input size W of window transformed into a fixed length of {} sample "
               "for AAP mid layer:".format(xception_adaptive_size))
 
-        # from pprint import pprint
-        # pprint(args_dict)
         kernel_regularize = None
         if self.kernel_regularize is not None:
             kernel_regularize = l2(self.kernel_regularize)
