@@ -14,18 +14,3 @@ accepted_keys_to_generic = {
     "z-axis (deg/s)": "gyr_z"
 }
 
-
-def rename_to_common_motion_signals_names(df):
-    """
-    Renames a pandas dataFrame with motion signal columns to the project defined names.
-    Args:
-        df (pandas dataFrame):
-
-    Returns:
-
-    """
-    rename_dict = dict()
-    for col_name in df.columns:
-        if col_name in accepted_keys_to_generic.keys():
-            rename_dict[col_name] = accepted_keys_to_generic[col_name]
-    df = df.rename(columns=rename_dict, inplace=True)

@@ -28,13 +28,19 @@ class XceptionTime(Model):
             xcpetion_adapt_ws_divide (int): The number that will divide the
             adaptive size. Default 4.
             n_filters (int): The number of filters. Default: 16
-            kernel_initialize (str): The variance scaling initializer. Default: "he_uniform".
-            kernel_regularize (float or str): Can be float or str in 1e-5 format.
+            kernel_initialize (str): The variance scaling initializer.
+            Default: "he_uniform".
+            kernel_regularize (float or str): Can be float or str in 1e-5
+            format.
             Regularizer to apply a penalty on the layer's kernel.
-            kernel_constraint (int): The constraint of the value of the incoming weights. Default 3.
-            drp_input (float): Fraction of the input units to drop in the input dropout layer. Default: 0.
-            drp_mid (float): Fraction of the input units to drop in the mid dropout layer. Default: 0.
-            drp_high (float): Fraction of the input units to drop in the last dropout layer. Default: 0.
+            kernel_constraint (int): The constraint of the value of the
+            incoming weights. Default 3.
+            drp_input (float): Fraction of the input units to drop in the input
+            dropout layer. Default: 0.
+            drp_mid (float): Fraction of the input units to drop in the mid
+            dropout layer. Default: 0.
+            drp_high (float): Fraction of the input units to drop in the last
+            dropout layer. Default: 0.
             activation (str): The activation function.
 
         Returns:

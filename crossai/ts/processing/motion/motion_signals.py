@@ -8,32 +8,6 @@ import pandas as pd
 from crossai.ts.processing.signal.filters import butterworth_filter, apply_gaussian_filter
 
 
-def calc_sensor_magnitude(df, sensor=None):
-    """
-    Accepts a dataframe that is expected to contain accelerometer or gyroscope
-    sensor data.
-    Returns the same dataFrame with a new column acc_magnitude.
-    Args:
-        sensor (str): The name of the sensor for which the magnitude will be
-        calculated.
-        df (pandas DataFrame): The dataframe of the raw sensor values. Each
-        column represents a different sensor axis.
-
-    Returns:
-    A new column in the input dataframe with calculated magnitude for the
-    selected sensor.
-    """
-    accepted_sensor_values = ["acc", "gyr"]
-    if sensor not in accepted_sensor_values:
-        raise ValueError("sensor must be type(str) and equal to 'acc' for the "
-                         "accelerometer sensor and 'gyr' for the gyroscope "
-                         "sensor")
-    else:
-        if sensor == "acc":
-            df["acc_magnitude"] = calculate_magnitude(df[axes_acc].values)
-        elif sensor == "gyr":
-            df["gyr_magnitude"] = calculate_magnitude(df[axes_gyr].values)
-
 
 def calculate_magnitude(array, axis=1):
     """
