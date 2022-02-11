@@ -1,6 +1,4 @@
-import numpy as np
 import logging
-from tensorflow import keras
 from tensorflow.keras.layers import Input, Dense, Conv1D, Add
 from tensorflow.keras.layers import SeparableConv1D
 from tensorflow.keras.layers import BatchNormalization
@@ -21,6 +19,27 @@ class XceptionTime(Model):
                  n_filters=16, kernel_initialize="he_uniform", kernel_regularize=1e-5,
                  kernel_constraint=3, drp_input=0, drp_mid=0, drp_high=0,
                  spatial=False, activation="softmax"):
+        """
+
+        Args:
+            number_of_classes (int): The number of classes. Default: 1.
+            train_data_shape (tuple (int, int)): The shape the train data.
+            xception_adaptive_size (int): The adaptive size. Default: 50.
+            xcpetion_adapt_ws_divide (int): The number that will divide the
+            adaptive size. Default 4.
+            n_filters (int): The number of filters. Default: 16
+            kernel_initialize (str): The variance scaling initializer. Default: "he_uniform".
+            kernel_regularize (float or str): Can be float or str in 1e-5 format.
+            Regularizer to apply a penalty on the layer's kernel.
+            kernel_constraint (int): The constraint of the value of the incoming weights. Default 3.
+            drp_input (float): Fraction of the input units to drop in the input dropout layer. Default: 0.
+            drp_mid (float): Fraction of the input units to drop in the mid dropout layer. Default: 0.
+            drp_high (float): Fraction of the input units to drop in the last dropout layer. Default: 0.
+            activation (str): The activation function.
+
+        Returns:
+
+        """
         super(XceptionTime, self).__init__()
         self.train_data_shape = train_data_shape
         self.number_of_classes = number_of_classes
@@ -253,7 +272,9 @@ class XceptionBlock(Layer):
         x = inputs
         input_res = inputs
 
-        rc = 0  # Residual counter for iterating shortcut conv layers list (residual_conv_list)
+        rc = 0
+        # Residual counter for iterating shortcut conv layers list
+        # (residual_conv_list)
         for d in range(self.depth):
             x = self.xception_modules_list[d](x)
 
