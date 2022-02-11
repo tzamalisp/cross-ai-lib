@@ -21,8 +21,7 @@ def apply_gaussian_filter(df, sigma):
     return df_smooth
 
 
-def butterworth_filter(data, cutoff, fs, order=4, filter_type="low",
-                       method="gust", sos=None):
+def butterworth_filter(data, cutoff, fs, order=4, filter_type="low", sos=None):
     """
     Lowpass butterworth filter
     Args:

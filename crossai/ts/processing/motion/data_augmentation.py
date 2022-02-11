@@ -17,15 +17,19 @@ from utilities.lists_common_utils import match_list_in_list
 from src.processing.timeseries.motion.project_processing_motion_variables\
     import axes_acc, axes_gyro
 from tsaug import AddNoise
+from crossai.ts.processing.motion.std_processing_motion_variables import axes_acc, axes_gyro
 
 
-def aug_addnoise(data, loc_acc=0.0, loc_gyr=0.0, scale_acc=0.2, scale_gyr=15.0, distr="gaussian",
-                 kind="additive", per_channel=False, normalize=False):
+def aug_addnoise(data, loc_acc=0.0, loc_gyr=0.0, scale_acc=0.2, scale_gyr=15.0,
+                 distr="gaussian", kind="additive", per_channel=False,
+                 normalize=False):
     """
     For the parameters see https://tsaug.readthedocs.io/en/stable/references.html#tsaug.AddNoise
-    Two different augmenters are used for accelerometer and gyroscope as the two sensors have different range values.
+    Two different augmenters are used for accelerometer and gyroscope as the
+    two sensors have different range values.
     Args:
-        data (pandas.DataFrame): An instance of the data, containing axes_acc and/or axes_gyr columns
+        data (pandas.DataFrame): An instance of the data, containing axes_acc
+        and/or axes_gyr columns
         loc_acc:
         loc_gyr:
         scale_acc:
@@ -63,12 +67,12 @@ def aug_addnoise(data, loc_acc=0.0, loc_gyr=0.0, scale_acc=0.2, scale_gyr=15.0, 
 
 def generate_random_curves(dims, sigma=0.2, knots=4, same_curve=True):
     """
-    
+
     Args:
-        dims (tuple): data.shape
-        sigma: 
-        knot: 
-        same_curve: 
+        dims:
+        sigma:
+        knots:
+        same_curve:
 
     Returns:
 
@@ -151,7 +155,8 @@ def aug_timewarp(data, sigma=0.2, knots=4, same_curve=True):
     data_columns = data.columns
     data_acc = data[axes_acc].values
     aug_data_gyr = None
-    tt_new = distort_timesteps(data_acc.shape, sigma=sigma, knots=knots, same_curve=same_curve)
+    tt_new = distort_timesteps(data_acc.shape, sigma=sigma, knots=knots,
+                               same_curve=same_curve)
 
     def np_interp(data, tt_new):
         data_dims = data.shape
