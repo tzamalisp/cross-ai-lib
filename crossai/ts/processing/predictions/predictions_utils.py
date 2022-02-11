@@ -1,6 +1,6 @@
 import logging
 import pandas as pd
-from crossai.ts.processing.preprocessing import SegmentsCollection
+from crossai.ts.processing.motion.preprocessing import SegmentsCollection
 
 
 def windows_to_segments(windows_df, sw_size, op, min_accepted_gesture_len=None):
@@ -69,10 +69,11 @@ def find_consecutive_windows(windows_df):
     "Length": The length in samples of the segment.
     """
     windows_df["disp"] = (windows_df.Class != windows_df.Class.shift()).cumsum()
-    windows_df = pd.DataFrame({"wind_start": windows_df.groupby("disp").wind_start.first(),
-                               "wind_end": windows_df.groupby("disp").wind_end.last(),
-                               "Class": windows_df.groupby("disp").Class.first(),
-                               "Confindence": windows_df.groupby("disp").model_confidence.mean()}).reset_index(
+    windows_df = pd.DataFrame(
+        {"wind_start": windows_df.groupby("disp").wind_start.first(),
+         "wind_end": windows_df.groupby("disp").wind_end.last(),
+         "Class": windows_df.groupby("disp").Class.first(),
+         "Confindence": windows_df.groupby("disp").model_confidence.mean()}).reset_index(
         drop=True)
     windows_df["Length"] = windows_df["wind_end"] - windows_df["wind_start"]
     return windows_df

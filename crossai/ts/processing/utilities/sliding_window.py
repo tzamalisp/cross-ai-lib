@@ -3,8 +3,8 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from crossai.ts.processing.preprocessing import SegmentsCollection
-from crossai.ts.processing.preprocessing import Segment
+from crossai.ts.processing.motion.preprocessing import Segment, \
+    SegmentsCollection
 
 
 def get_overlap(a, b, percent=True):

@@ -45,7 +45,8 @@ def trust_scores_model_score(data,
     Computes and the trust_scores and the closest classes of predictions.
     Args:
         data (np.array): The data to use Trust Score on (e.g windows)
-        clf_predictions (list): The labels predictions that were computed by the classifier
+        clf_predictions (list): The labels predictions that were computed by
+        the classifier.
         ts_model (TrustScore object): The object created via the alibi library.
         **params_score:
         -k (int): The number of the nearest neighbors used for distance calculations.
