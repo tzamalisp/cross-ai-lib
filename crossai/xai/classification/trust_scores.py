@@ -3,8 +3,6 @@ from pathlib import Path
 from pickle import dump, load
 from alibi.confidence import TrustScore
 
-from sklearn.model_selection import train_test_split
-
 
 def trust_score_model_fit(train_data_dr, ts_classes, path_to_save=None,
                           **trust_score_params):
@@ -15,6 +13,16 @@ def trust_score_model_fit(train_data_dr, ts_classes, path_to_save=None,
         ts_classes (list): The list of the classes.
         path_to_save (str): The path to save the trust_score model after fit.
         **trust_score_params (dict): Parameters of the Trust Score Model.
+            -alpha: target fraction of instances to filter out.
+            -filter_type: filter method; one of None (no filtering), distance_knn
+            (first technique discussed in Overview) or probability_knn (second technique).
+            -k_filter: number of neighbors used for the distance or probability
+            based filtering method.
+            -leaf_size: affects the speed and memory usage to build the k-d trees.
+            The memory scales with the ratio between the number of samples and
+            the leaf size.
+            -metric: distance metric used for the k-d trees. Euclidean by default.
+            -dist_filter_type: point uses th
 
     Returns:
         ts (trust_score model object):
@@ -31,37 +39,33 @@ def trust_score_model_fit(train_data_dr, ts_classes, path_to_save=None,
 
 def trust_scores_model_score(data,
                              clf_predictions,
-                             dimensionality_reduction_method,
-                             transformer,
                              ts_model,
                              **params_score):
     """
     Computes and the trust_scores and the closest classes of predictions.
     Args:
-        data:
-        clf_predictions:
-        dimensionality_reduction_method:
-        transformer:
-        ts_model:
+        data (np.array): The data to use Trust Score on (e.g windows)
+        clf_predictions (list): The labels predictions that were computed by the classifier
+        ts_model (TrustScore object): The object created via the alibi library.
         **params_score:
+        -k (int): The number of the nearest neighbors used for distance calculations.
+        -dist_type (str): Options are "point"  (distance to k-nearest point)
+        or "mean" (average distance from  the fist to the k-nearest point).
+
 
     Returns:
-
+        score (list): A list of the calculated Trust Scores.
+        closest_class (list): A list of the closest not predicted classes
+        according to Trust Score.
     """
-    logging.debug("Dimensionality reduction on predicted data.")
-    if dimensionality_reduction_method == "pca":
-        data_dr = transformer.transform(data)
-    else:
-        # autoencoder case
-        data_dr = transformer.predict(data)
     logging.debug("Calculating Trust Score")
-    logging.debug("type data_dr {}".format(type(data_dr)))
-    logging.debug("shape data_dr {}".format(data_dr.shape))
+    logging.debug("type data {}".format(type(data)))
+    logging.debug("shape data {}".format(data.shape))
     logging.debug("type clf_predictions {}".format(type(clf_predictions)))
     logging.debug("shape clf_predictions {}".format(clf_predictions.shape))
     logging.debug("clf_predictions {}".format(clf_predictions))
     logging.debug(params_score)
-    score, closest_class = ts_model.score(data_dr,
+    score, closest_class = ts_model.score(data,
                                           clf_predictions,
                                           **params_score)
     logging.debug("score len: {}".format(len(score)))
@@ -78,3 +82,62 @@ def trust_scores_model_score(data,
         closest_class = closest_class[:len(score)]
     return score, closest_class
 
+
+def calc_trust_scores(data,
+                      clf_predictions,
+                      train_data=None,
+                      trust_score_classes=2,
+                      trust_score_params_score=dict(),
+                      scaler=None,
+                      decomposer=None,
+                      model_path=None):
+    """
+
+    Args:
+        data (np.array): The data that the trust score model will be used for.
+        clf_predictions (np.array): The classifier predictions.
+        train_data (np.array): The train data for the training of the Trust Score
+        model.
+        trust_score_classes (int): The number of prediction classes.
+        trust_score_params_score:
+        scaler (sklearn Scaler Object): The scaler object to scale the
+        train data.
+        decomposer (sklearn Decomposer Object (PCA etc.)): The decomposer
+        object that transforms the scaled trained data.
+        model_path (str or Pathlib object): The path to save the trust_score
+        model.
+        trust_score_params_score (dict):
+        -alpha: target fraction of instances to filter out.
+        -filter_type: filter method; one of None (no filtering), distance_knn
+        (first technique discussed in Overview) or probability_knn (second technique).
+        -k_filter: number of neighbors used for the distance or probability
+        based filtering method.
+        -leaf_size: affects the speed and memory usage to build the k-d trees.
+        The memory scales with the ratio between the number of samples and
+        the leaf size.
+        -metric: distance metric used for the k-d trees. Euclidean by default.
+        -dist_filter_type: point uses th
+
+    Returns:
+        score (list): A list of the calculated Trust Scores.
+        closest_class (list): A list of the closest not predicted classes
+        according to Trust Score.
+    """
+    logging.debug("Calculating TrustScore")
+    if scaler is not None:
+        transformed_data = scaler.tranform(train_data)
+        if decomposer is not None:
+            transformed_data = decomposer.transform(transformed_data)
+        ts_model = trust_score_model_fit(transformed_data, trust_score_classes,
+                                         path_to_save=model_path)
+    else:
+        ts_model = trust_score_model_fit(train_data, trust_score_classes,
+                                         path_to_save=model_path)
+
+    score, closest_class = trust_scores_model_score(
+        data,
+        clf_predictions,
+        ts_model,
+        **trust_score_params_score
+    )
+    return score, closest_class
