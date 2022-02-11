@@ -4,6 +4,15 @@ from wordcloud import WordCloud
 
 
 def word_cloud_creation(text_list, max_words=150):
+    """
+
+    Args:
+        text_list:
+        max_words:
+
+    Returns:
+
+    """
     count_all_terms = Counter()
     for tokens in text_list:
         count_all_terms.update(tokens)

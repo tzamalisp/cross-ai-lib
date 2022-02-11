@@ -1,6 +1,3 @@
-import numpy as np
-import logging
-from crossai.models.nn1d.layers import BaseModel
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Conv1D
