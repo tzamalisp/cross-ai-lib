@@ -2,14 +2,7 @@ import logging
 from datetime import datetime
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from matplotlib import pyplot as plt
-from scipy.ndimage import gaussian_filter1d
-from scipy.signal import butter, filtfilt, stft, sosfilt, sosfiltfilt
 from tqdm import tqdm
-from processing.motion.plot_motion_sensors_data import plot_spectrogram
-from processing.signal.features_extraction import calculate_rms
-from utilities.visualizations import fig2img, merge_pil_images
 from crossai.ts.processing.preprocessing import SegmentsCollection
 from crossai.ts.processing.preprocessing import Segment
 
