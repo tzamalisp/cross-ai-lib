@@ -3,8 +3,8 @@ import logging
 import numpy as np
 import pandas as pd
 
-from src.processing.timeseries.motion.project_processing_motion_variables\
-    import axes_acc, axes_gyro, accepted_keys_to_generic
+from crossai.ts.processing.motion.std_processing_motion_variables import axes_acc, axes_gyro,\
+    accepted_keys_to_generic
 
 
 def get_motion_signals_data_from_document(dataset_document):

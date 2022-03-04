@@ -1,7 +1,7 @@
 """
 Default variables regarding processing.
 """
-# Define global names for the input signals, and categorize them according to their source sensor.
+# Define global names for the usual input motiion signals, and categorize them accoding to their source sensor.
 axes_acc = ["acc_x", "acc_y", "acc_z"]
 axes_gyro = ["gyr_x", "gyr_y", "gyr_z"]
 # Dictionary to convert axes names to generic names
