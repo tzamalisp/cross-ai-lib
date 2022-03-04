@@ -5,13 +5,13 @@ from wordcloud import WordCloud
 
 def word_cloud_creation(text_list, max_words=150):
     """
-
+    Creates and shows a word cloud from a list of texts.
     Args:
-        text_list:
-        max_words:
+        text_list (list): The list of texts.
+        max_words (int): The maximum number of words that will be displayed in the wordcloud.
 
     Returns:
-
+        None.
     """
     count_all_terms = Counter()
     for tokens in text_list:

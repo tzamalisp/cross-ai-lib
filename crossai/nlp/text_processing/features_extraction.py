@@ -21,9 +21,12 @@ nlp.add_pipe(spacy_text_blob)
 
 def text_length(text):
     """
-    # get text length
-    :param text:
-    :return:
+    Calculates the length of a text.
+    Args:
+        text (str): The text that its length will be calculated.
+
+    Returns:
+        (int): The text length.
     """
     text_list = text.split()
     text = "".join(text_list)
@@ -31,6 +34,17 @@ def text_length(text):
 
 
 def emojis_sentiments_sum(emojis_list):
+    """
+    Calculates the sums of the emojis that are in a list (already calculated).
+    Args:
+        emojis_list (list): The list of the emojis.
+
+    Returns:
+        sentiment_sums (dict): A dictionary which contains 3 keys
+        a) The sum of the negative emojis found in the input list.
+        b) The sum of the neutral emojis found in the input list.
+        c) The sum of the positive emojis found in the input list.
+    """
     neg_sentiment_list = []
     neu_sentiment_list = []
     pos_sentiment_list = []
@@ -59,9 +73,12 @@ def emojis_sentiments_sum(emojis_list):
 
 def entropy(string):
     """
-    Calculates the Shannon entropy of a string
-    :param string:
-    :return:
+    Calculates the Shannon entropy of a string.
+    Args:
+        string (str): The string that its entropy will be calculated.
+
+    Returns:
+        entropy (float): The entropy.
     """
     # get probability of chars in string
     prob = [float(string.count(c)) / len(string) for c in dict.fromkeys(list(string))]
@@ -73,9 +90,12 @@ def entropy(string):
 
 def entropy_ideal(length):
     """
-    Calculates the ideal Shannon entropy of a string with given length
-    :param length:
-    :return:
+    Calculates the ideal Shannon entropy of a string with a given length.
+    Args:
+        length (int): The length of the string that its ideal entropy will be calculated.
+
+    Returns:
+       (float): The ideal entropy.
     """
     prob = 1.0 / length
 
@@ -83,6 +103,14 @@ def entropy_ideal(length):
 
 
 def average_word_length_sentence(text):
+    """
+    Calculates the average word length in a sentence.
+    Args:
+        text (str): A text with sentences that its average word length will be calculated.
+
+    Returns:
+        average (float): The average word length.
+    """
     total_length = sum(len(strip_urls_entities_emojis(word)) for sentence in text for word in sentence.split())
     num_words = sum(len(sentence.split()) for sentence in text)
     if num_words == 0:
@@ -94,6 +122,14 @@ def average_word_length_sentence(text):
 
 
 def average_word_length(text):
+    """
+    Calculates the average word length in a clean text without urls, entities, emojis.
+    Args:
+        text (str): A cleaned text that its average word length will be calculated.
+
+    Returns:
+        average (float): The average word leangth.
+    """
     cleaned_words = [strip_urls_entities_emojis(w) for w in (w for l in text for w in l.split())]
     if len(cleaned_words) == 0:
         average = 0
@@ -138,7 +174,9 @@ def count_vowels_consonants(clean_text, vowels="αεηιυοω", consonants="β�
         vowels: (str) The vowels of a language. Default: Greek
         consonants: (str) The consonants of a language. Default: Greek
     Returns:
-
+        A dictionary containing two keys.
+        a) The count of vowels in a sentence.
+        b) The count of consonants in a sentence.
     """
     clean_text = strip_accents(clean_text.lower())
     count_vowels = 0
@@ -167,7 +205,10 @@ def count_consecutive_chars(clean_text, vowels="αεηιυοωaeiou", mode="twee
         mode: The tokenizer mode. Default: "tweet". Other tokenizers: "tweet_extend", "word"
 
     Returns:
-
+        A dictionary with 3 keys.
+        a) The maximum of consecutive vowels found in a string.
+        b) The maximum of consecutive consonants found in a string.
+        c) The number of identical repetitions. e.g. Heee Heee = 2.
     """
     # remove accents and lowercase the text
     clean_text = strip_accents(clean_text.lower())
@@ -196,12 +237,17 @@ def count_consecutive_chars(clean_text, vowels="αεηιυοωaeiou", mode="twee
 
 def chars_various_feats(clean_text):
     """
-
+    Calculates various features.
+    a) The number of uppercase letters in a text.
+    b) The number of lowercase letters in a text.
+    c) The number of digits in a text.
+    d) The number of letters in a text.
+    e) The ratio between letters and numbers.
     Args:
         clean_text: (str) The cleaned text from urls and entities.
 
     Returns:
-
+        A dictionary containing all the values of the features.
     """
     n_uppercase = sum(1 for c in clean_text if c.isupper())
     n_lowercase = sum(1 for c in clean_text if c.islower())

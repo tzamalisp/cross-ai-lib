@@ -6,7 +6,6 @@ import unicodedata
 from nltk.tokenize import TweetTokenizer, word_tokenize
 from nltk.corpus import stopwords
 from spacy.lang.el.stop_words import STOP_WORDS
-from pymongo import MongoClient
 
 
 def tokenizing(text, mode="tweet"):
@@ -92,7 +91,7 @@ def clean_up_punctuation_digits(text):
 
 def clean_up_punctuation_simple(text, punctuation="!\"',;:.-?)([]<>*#\n\\"):
     """
-
+    Removes punctuation from a text.
     Args:
         text: (str) The raw text.
         punctuation: The values of punctuations.
@@ -138,9 +137,6 @@ def strip_entities(text):
         The clean text without the entities.
     """
     entity_prefixes = ["@", "#", "\n"]
-#     for separator in  string.punctuation:
-#         if separator not in entity_prefixes :
-#             text = text.replace(separator,' ')
     words = []
     for word in text.split():
         word = word.strip()
@@ -293,13 +289,13 @@ def clean_urls_entities(text, mode="tweet"):
 
 def extract_stopwords(text, mode="tweet"):
     """
-
+    Extracts the stopwords of a text.
     Args:
         text: (str) The raw text.
         mode: (str) The mode of tokenizer object. Default: "tweet". Other accepted: "tweet_extend", "word".
 
     Returns:
-
+        A list with only tokens that are not stopwords.
     """
     stop_words_spacy = list(STOP_WORDS)
     stop_words_nltk = stopwords.words("greek")
@@ -313,7 +309,7 @@ def extract_stopwords(text, mode="tweet"):
 
 def strip_accents(clean_text):
     """
-
+    Strips the accents of words in a text.
     Args:
         clean_text: (str) The cleaned text.
 
