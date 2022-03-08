@@ -269,7 +269,7 @@ def create_features_directory(dir_path, m_win, m_step, s_win, s_step,
                          surfboard_features)
 
 
-def dataframe_builder(json_directory):
+def features_dataframe_builder(json_directory):
     """
     Given a directory, this function will
     create a list of dicts from the json files
