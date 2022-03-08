@@ -22,13 +22,19 @@ def long_feature_wav(wav_file, mid_window, mid_step,
     modifications in order to be applied to singular files.
     Very useful to create a collection of json files (1 song -> 1 json).
     Genre as a feature should be added (very simple).
-    ARGUMENTS:
-        - wav_file:        the path of the WAVE directory
-        - mid_window, mid_step:    mid-term window and step (in seconds)
-        - short_window, short_step:    short-term window and step (in seconds)
-    RETURNS:
-        - mid_term_feaures: The feature vector of a singular wav file
-        - mid_feature_names: The feature names, useful for formating
+    Args:
+        wav_file (str): The path of the WAV directory.
+        mid_window (int): The mid-term window (in seconds).
+        mid_step (int): The mid-term step (in seconds).
+        short_window (int): The short-term window (in seconds).
+        short_step (int): The short-term step (in seconds).
+        accept_small_wavs (boolean): Whether to accept small WAVs or not.
+        compute_beat (boolean): Whether to compute beat related features or not.
+        librosa_features (boolean): Whether to compute librosa features or not.
+        surfboard_features (boolean): Whether to compute surfboard features or not.
+    Returns:
+        mid_term_feaures (np.array): The feature vector of a singular wav file.
+        mid_feature_names (list): The feature names, useful for formatting.
     """
 
     mid_term_features = np.array([])
@@ -103,11 +109,13 @@ def features_to_json(root_path, file_name, save_location, yaml_object):
     Function that saves the features returned from long_feature_wav
     to json files. This functions operates on a singular wav file.
     Appends the genre to the json file also.
-    ARGUMENTS:
-     - root_path: absolute path of the dataset, useful for audio loading
-     - file_name: self explanatory
-     - save_location: self explanatory
-     - yaml_object: obj of the yaml object, contains parameters for the feature extraction
+    Args:
+        root_path (str): absolute path of the dataset, useful for audio loading.
+        file_name (str): Self explanatory.
+        save_location (str): Self explanatory.
+        yaml_object (yaml object): Obj of the yaml object, contains parameters for the feature extraction.
+    Returns:
+        json_file_name (str): The path of the json file that contains the features.
     """
     m_win, m_step, s_win, s_step, compute_beat, accept_small_wavs = \
     yaml_object['parameters'].values()
@@ -143,14 +151,14 @@ def features_to_json(root_path, file_name, save_location, yaml_object):
 def _audio_to_librosa_features(filename, sampling_rate=22050):
     """
     Function that extracts the additional Librosa features
-    ARGUMENTS:
-     - filename: name of the wav file
-     - sampling_rate: used because pyAudioAnalysis uses different sampling rate
-     for each wav file
+    Args:
+      filename (str): THe name of the WAV file.
+      sampling_rate (int): Used because pyAudioAnalysis uses different sampling rate
+      for each wav file.
 
-     RETURNS:
-     - features: the calculated features, returned as numpy array for consistency (1 x 12)
-     - feature_names: the feature names for consistency and pandas formating (1 x 12)
+    Returns:
+      features (np.array): the calculated features, returned as numpy array for consistency (1 x 12).
+      feature_names (list): The feature names for consistency and pandas formatting (1 x 12).
     """
 
     y, sr = lb.load(filename, sr=sampling_rate)
@@ -182,15 +190,15 @@ def _audio_to_librosa_features(filename, sampling_rate=22050):
 
 def _audio_to_surfboard_features(filename, sampling_rate=44100):
     """
-    Function that extracts the additional Surfboard features
-    ARGUMENTS:
-     - filename: name of the wav file
-     - sampling_rate: used because pyAudioAnalysis uses different sampling rate
-     for each wav file
+    Function that extracts the additional Surfboard features.
+    Args:
+       filename (str): The name of the wav file
+       sampling_rate (int): Used because pyAudioAnalysis uses different sampling rate
+       for each wav file
 
-     RETURNS:
-     - feature_values: the calculated features, returned as numpy array for consistency (1 x 13)
-     - feature_names: the feature names for consistency and pandas formating (1 x 13)
+    Returns:
+       feature_values (np.array): the calculated features, returned as numpy array for consistency (1 x 13)
+       feature_names (list): the feature names for consistency and pandas formating (1 x 13)
     """
 
     sound = Waveform(path=filename, sample_rate=sampling_rate)
