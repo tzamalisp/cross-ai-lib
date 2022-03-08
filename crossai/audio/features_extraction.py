@@ -15,9 +15,7 @@ from tqdm import tqdm
 def long_feature_wav(wav_file, mid_window, mid_step,
                      short_window, short_step,
                      accept_small_wavs=False,
-                     compute_beat=True,
-                     librosa_features=False,
-                     surfboard_features=False):
+                     compute_beat=True, features_to_compute=["ann", "libr", "surf"]):
     """
     This function computes the long-term features per WAV file.
     Very useful to create a collection of json files (1 song -> 1 json).
@@ -29,16 +27,21 @@ def long_feature_wav(wav_file, mid_window, mid_step,
         short_window (int): The short-term window (in seconds).
         short_step (int): The short-term step (in seconds).
         accept_small_wavs (boolean): Whether to accept small WAVs or not.
-        compute_beat (boolean): Whether to compute beat related features or not.
-        librosa_features (boolean): Whether to compute librosa features or not.
-        surfboard_features (boolean): Whether to compute surfboard features or not.
+        compute_beat (boolean): Whether to compute beat related features or not. These features are only computed when
+        "ann" is selected in the features_to_compute argument.
+        features_to_compute (list of str): A list of the features that will be computed. The only options are "ann", "libr"
+        and "surf" or a combination of them. For more details check out the library's README.md. All options are enabled
+        by default.
     Returns:
         mid_term_feaures (np.array): The feature vector of a singular wav file.
         mid_feature_names (list): The feature names, useful for formatting.
     """
 
     mid_term_features = np.array([])
-
+    mid_feature_names = []
+    for feature in features_to_compute:
+        if feature not in ["ann", "libr", "surf"]:
+            raise ValueError("The option {} does not exist or is misspelled".format(feature))
     sampling_rate, signal = audioBasicIO.read_audio_file(wav_file)
     if sampling_rate == 0:
         return -1
@@ -51,65 +54,65 @@ def long_feature_wav(wav_file, mid_window, mid_step,
     if signal.shape[0] < float(sampling_rate) / size_tolerance:
         print("  (AUDIO FILE TOO SMALL - SKIPPING)")
         return -1
-
-    if compute_beat:
-        mid_features, short_features, mid_feature_names = \
-            mid_feature_extraction(signal, sampling_rate,
-                                   round(mid_window * sampling_rate),
-                                   round(mid_step * sampling_rate),
-                                   round(sampling_rate * short_window),
-                                   round(sampling_rate * short_step))
-        beat, beat_conf = beat_extraction(short_features, short_step)
-    else:
-        mid_features, _, mid_feature_names = \
-            mid_feature_extraction(signal, sampling_rate,
-                                   round(mid_window * sampling_rate),
-                                   round(mid_step * sampling_rate),
-                                   round(sampling_rate * short_window),
-                                   round(sampling_rate * short_step))
-
-    mid_features = np.transpose(mid_features)
-    mid_features = mid_features.mean(axis=0)
-    # long term averaging of mid-term statistics
-    if (not np.isnan(mid_features).any()) and \
-            (not np.isinf(mid_features).any()):
+    if "ann" in features_to_compute:
         if compute_beat:
-            mid_features = np.append(mid_features, beat)
-            mid_features = np.append(mid_features, beat_conf)
-            mid_feature_names.append("beat")
-            mid_feature_names.append("beat_conf")
+            mid_features, short_features, mid_feature_names = \
+                mid_feature_extraction(signal, sampling_rate,
+                                       round(mid_window * sampling_rate),
+                                       round(mid_step * sampling_rate),
+                                       round(sampling_rate * short_window),
+                                       round(sampling_rate * short_step))
+            beat, beat_conf = beat_extraction(short_features, short_step)
+        else:
+            mid_features, _, mid_feature_names = \
+                mid_feature_extraction(signal, sampling_rate,
+                                       round(mid_window * sampling_rate),
+                                       round(mid_step * sampling_rate),
+                                       round(sampling_rate * short_window),
+                                       round(sampling_rate * short_step))
+
+        mid_features = np.transpose(mid_features)
+        mid_features = mid_features.mean(axis=0)
+        # long term averaging of mid-term statistics
+        if (not np.isnan(mid_features).any()) and \
+                (not np.isinf(mid_features).any()):
+            if compute_beat:
+                mid_features = np.append(mid_features, beat)
+                mid_features = np.append(mid_features, beat_conf)
+                mid_feature_names.append("beat")
+                mid_feature_names.append("beat_conf")
 
         # Block of code responsible for extra features
 
-        if librosa_features:
-            librosa_feat, librosa_feat_names = _audio_to_librosa_features(
-                wav_file, sampling_rate=sampling_rate)
-            mid_features = np.append(mid_features, librosa_feat)
-            for element in librosa_feat_names:
-                mid_feature_names.append(element)
+    if "libr" in features_to_compute:
+        librosa_feat, librosa_feat_names = compute_libr_features(
+            wav_file, sampling_rate=sampling_rate)
+        mid_features = np.append(mid_features, librosa_feat)
+        for element in librosa_feat_names:
+            mid_feature_names.append(element)
 
-        if surfboard_features:
-            surfboard_feat, surfboard_feat_names = _audio_to_surfboard_features(
-                wav_file, sampling_rate=sampling_rate)
-            mid_features = np.append(mid_features, surfboard_feat)
-            for element in surfboard_feat_names:
-                mid_feature_names.append(element)
+    if "surf" in features_to_compute:
+        surfboard_feat, surfboard_feat_names = compute_surf_features(
+            wav_file, sampling_rate=sampling_rate)
+        mid_features = np.append(mid_features, surfboard_feat)
+        for element in surfboard_feat_names:
+            mid_feature_names.append(element)
 
-        if len(mid_term_features) == 0:
-            # append feature vector
-            mid_term_features = mid_features
-        else:
-            mid_term_features = np.vstack((mid_term_features, mid_features))
+    if len(mid_term_features) == 0:
+        # append feature vector
+        mid_term_features = mid_features
+    else:
+        mid_term_features = np.vstack((mid_term_features, mid_features))
 
     return mid_term_features, mid_feature_names
 
 
 def features_to_json(root_path, file_name, save_location, m_win, m_step, s_win, s_step,
-                     accept_small_wavs, compute_beat, librosa_features, surfboard_features):
+                     accept_small_wavs, compute_beat, features_to_compute=["ann", "libr", "surf"]):
     """
     Function that saves the features returned from long_feature_wav
-    to json files. This functions operates on a singular wav file.
-    Appends the genre to the json file also.
+    to a json file. This functions operates on a singular wav file.
+    The function will automatically add the root folder name as the 'label' field in the json.
     Args:
         root_path (str): absolute path of the dataset, useful for audio loading.
         file_name (str): Self explanatory.
@@ -119,9 +122,11 @@ def features_to_json(root_path, file_name, save_location, m_win, m_step, s_win, 
         s_win (int): The short-term window (in seconds).
         s_step (int): The short-term step (in seconds).
         accept_small_wavs (boolean): Whether to accept small WAVs or not.
-        compute_beat (boolean): Whether to compute beat related features or not.
-        librosa_features (boolean): Whether to compute librosa features or not.
-        surfboard_features (boolean): Whether to compute surfboard features or not.
+        compute_beat (boolean): Whether to compute beat related features or not. These features are only computed when
+        "ann" is selected in the features_to_compute argument.
+        features_to_compute (list of str): A list of the features that will be computed. The only options are "ann", "libr"
+        and "surf" or a combination of them. For more details check out the library's README.md. All options are enabled
+        by default.
     Returns:
         json_file_name (str): The path of the json file that contains the features.
     """
@@ -129,9 +134,7 @@ def features_to_json(root_path, file_name, save_location, m_win, m_step, s_win, 
     long_feature_return = long_feature_wav(root_path + '/' + file_name, m_win,
                                            m_step,
                                            s_win, s_step, accept_small_wavs,
-                                           compute_beat,
-                                           librosa_features=librosa_features,
-                                           surfboard_features=surfboard_features)
+                                           compute_beat, features_to_compute)
 
     if long_feature_return == -1:
         return -1
@@ -141,8 +144,8 @@ def features_to_json(root_path, file_name, save_location, m_win, m_step, s_win, 
 
     # Adding the genre tag to the json dictionary, using pathlib for simplicity
     p = PurePath(root_path)
-    genre = p.name
-    json_data['genre'] = genre
+    label = p.name
+    json_data['label'] = label
 
     json_file_name = save_location + '/' + file_name + '.json'
     with open(json_file_name, 'w', encoding='utf-8') as f:
@@ -152,7 +155,7 @@ def features_to_json(root_path, file_name, save_location, m_win, m_step, s_win, 
     return json_file_name
 
 
-def _audio_to_librosa_features(filename, sampling_rate=22050):
+def compute_libr_features(filename, sampling_rate=22050):
     """
     Function that extracts the additional Librosa features
     Args:
@@ -192,7 +195,7 @@ def _audio_to_librosa_features(filename, sampling_rate=22050):
     return np.array(features), feature_names
 
 
-def _audio_to_surfboard_features(filename, sampling_rate=44100):
+def compute_surf_features(filename, sampling_rate=44100):
     """
     Function that extracts the additional Surfboard features.
     Args:
@@ -228,11 +231,11 @@ def _audio_to_surfboard_features(filename, sampling_rate=44100):
 
 
 def create_features_directory(dir_path, m_win, m_step, s_win, s_step,
-                              accept_small_wavs, compute_beat, librosa_features,
-                              surfboard_features):
+                              accept_small_wavs, compute_beat, features_to_compute=["ann", "libr", "surf"]):
     """
     Function that generates an identical directory structure to the one of the input WAV files
-    that contains the feature json files of each audio file.
+    that contains the feature json files of each audio file. The name of the new directory will be the same as
+    dir_path argument with the suffix "_features" added to it.
 
     Args:
         dir_path (str): The path of the directory that contains the audio files.
@@ -242,8 +245,11 @@ def create_features_directory(dir_path, m_win, m_step, s_win, s_step,
         s_step (int): The short-term step (in seconds).
         accept_small_wavs (boolean): Whether to accept small WAVs or not.
         compute_beat (boolean): Whether to compute beat related features or not.
-        librosa_features (boolean): Whether to compute librosa features or not.
-        surfboard_features (boolean): Whether to compute surfboard features or not.
+        compute_beat (boolean): Whether to compute beat related features or not. These features are only computed when
+        "ann" is selected in the features_to_compute argument.
+        features_to_compute (list of str): A list of the features that will be computed. The only options are "ann", "libr"
+        and "surf" or a combination of them. For more details check out the library's README.md. All options are enabled
+        by default.
 
     Returns:
         None
@@ -265,8 +271,7 @@ def create_features_directory(dir_path, m_win, m_step, s_win, s_step,
         root, file_name = element
         save_folder = root.replace(folder_name, folder_name+'_features')
         features_to_json(root, file_name, save_folder, m_win, m_step, s_win, s_step,
-                         accept_small_wavs, compute_beat, librosa_features,
-                         surfboard_features)
+                         accept_small_wavs, compute_beat, features_to_compute)
 
 
 def features_dataframe_builder(json_directory):
