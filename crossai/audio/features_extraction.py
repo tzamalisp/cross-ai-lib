@@ -8,6 +8,8 @@ from surfboard.sound import Waveform
 from surfboard.feature_extraction import extract_features_from_waveform
 import json
 import pandas as pd
+import os
+from tqdm import tqdm
 
 
 def long_feature_wav(wav_file, mid_window, mid_step,
@@ -17,13 +19,11 @@ def long_feature_wav(wav_file, mid_window, mid_step,
                      librosa_features=False,
                      surfboard_features=False):
     """
-    This function computes the long-term feature per WAV file.
-    It is identical to directory_feature_extraction, with simple
-    modifications in order to be applied to singular files.
+    This function computes the long-term features per WAV file.
     Very useful to create a collection of json files (1 song -> 1 json).
     Genre as a feature should be added (very simple).
     Args:
-        wav_file (str): The path of the WAV directory.
+        wav_file (str): The path to the WAV file.
         mid_window (int): The mid-term window (in seconds).
         mid_step (int): The mid-term step (in seconds).
         short_window (int): The short-term window (in seconds).
@@ -104,7 +104,8 @@ def long_feature_wav(wav_file, mid_window, mid_step,
     return mid_term_features, mid_feature_names
 
 
-def features_to_json(root_path, file_name, save_location, yaml_object):
+def features_to_json(root_path, file_name, save_location, m_win, m_step, s_win, s_step,
+                     accept_small_wavs, compute_beat, librosa_features, surfboard_features):
     """
     Function that saves the features returned from long_feature_wav
     to json files. This functions operates on a singular wav file.
@@ -113,21 +114,24 @@ def features_to_json(root_path, file_name, save_location, yaml_object):
         root_path (str): absolute path of the dataset, useful for audio loading.
         file_name (str): Self explanatory.
         save_location (str): Self explanatory.
-        yaml_object (yaml object): Obj of the yaml object, contains parameters for the feature extraction.
+        m_win (int): The mid-term window (in seconds).
+        m_step (int): The mid-term step (in seconds).
+        s_win (int): The short-term window (in seconds).
+        s_step (int): The short-term step (in seconds).
+        accept_small_wavs (boolean): Whether to accept small WAVs or not.
+        compute_beat (boolean): Whether to compute beat related features or not.
+        librosa_features (boolean): Whether to compute librosa features or not.
+        surfboard_features (boolean): Whether to compute surfboard features or not.
     Returns:
         json_file_name (str): The path of the json file that contains the features.
     """
-    m_win, m_step, s_win, s_step, compute_beat, accept_small_wavs = \
-    yaml_object['parameters'].values()
 
     long_feature_return = long_feature_wav(root_path + '/' + file_name, m_win,
                                            m_step,
                                            s_win, s_step, accept_small_wavs,
                                            compute_beat,
-                                           librosa_features=yaml_object[
-                                               'librosa_features'],
-                                           surfboard_features=yaml_object[
-                                               'surfboard_features'])
+                                           librosa_features=librosa_features,
+                                           surfboard_features=surfboard_features)
 
     if long_feature_return == -1:
         return -1
@@ -221,3 +225,79 @@ def _audio_to_surfboard_features(filename, sampling_rate=44100):
     feature_names = list(feature_dataframe.columns)
 
     return feature_values, feature_names
+
+
+def create_features_directory(dir_path, m_win, m_step, s_win, s_step,
+                              accept_small_wavs, compute_beat, librosa_features,
+                              surfboard_features):
+    """
+    Function that generates an identical directory structure to the one of the input WAV files
+    that contains the feature json files of each audio file.
+
+    Args:
+        dir_path (str): The path of the directory that contains the audio files.
+        m_win (int): The mid-term window (in seconds).
+        m_step (int): The mid-term step (in seconds).
+        s_win (int): The short-term window (in seconds).
+        s_step (int): The short-term step (in seconds).
+        accept_small_wavs (boolean): Whether to accept small WAVs or not.
+        compute_beat (boolean): Whether to compute beat related features or not.
+        librosa_features (boolean): Whether to compute librosa features or not.
+        surfboard_features (boolean): Whether to compute surfboard features or not.
+
+    Returns:
+        None
+    """
+    file_suffix = '.wav'
+    directory_path = dir_path
+    music_files = []
+    path_obj = PurePath(directory_path)
+    folder_name = path_obj.name
+    for root, _, files in os.walk(directory_path):
+        new_folder = root.replace(folder_name, folder_name+'_features')
+        if not os.path.isdir(new_folder):
+            os.mkdir(new_folder)
+        for file_element in files:
+            if file_element.endswith(file_suffix):
+                music_files.append((root, file_element))
+    music_files = tqdm(music_files, desc='Extracting features...')
+    for element in music_files:
+        root, file_name = element
+        save_folder = root.replace(folder_name, folder_name+'_features')
+        features_to_json(root, file_name, save_folder, m_win, m_step, s_win, s_step,
+                         accept_small_wavs, compute_beat, librosa_features,
+                         surfboard_features)
+
+
+def dataframe_builder(json_directory):
+    """
+    Given a directory, this function will
+    create a list of dicts from the json files
+    in the directory. Based on this list a dataframe
+    that describes the whole dataset is constructed.
+    Additionally, the path of each file is stored.
+
+    Args:
+        json_directory (str): The path to the json directory that through the create_features_directory function.
+    Returns:
+        (pd.Dataframe): A dataframe with the features extracted from the whole dataset. (num_of_instances x 165)
+    """
+
+    dict_list = []
+
+    if not os.path.isdir(json_directory):
+        print('Invalid path! Check your config file.')
+        return
+
+    for root, _, files in os.walk(json_directory):
+        for file_element in files:
+            if not file_element.endswith('.json'):  # ignore other files
+                continue
+
+            json_file_path = PurePath(root, file_element)
+            with open(json_file_path) as file:
+                json_dict = json.load(file)
+                json_dict['file_path'] = json_file_path
+                dict_list.append(json_dict)
+
+    return pd.DataFrame(dict_list)
